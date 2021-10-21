@@ -11,17 +11,12 @@ namespace Answap.Gov.Test.Domain
         [Fact]
         public void TestCannotVoteIfVoteIsInvalid()
         {
-            var validOptions = new []{
-                new Option("FOR"), new Option("AGAINST")
-            };
-
             var proposal = new Proposal(
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 ProposalHelper.GetCreationDate(),
-                ProposalHelper.GetDeadline(),
-                validOptions
+                ProposalHelper.GetDeadline()
             );
 
             var invalidVote = new Vote(VoteHelper.GetFakeVoter(), new Option("NO"), VoteHelper.GetFakeToken(), 1000);
@@ -37,8 +32,7 @@ namespace Answap.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 DateTime.Now.AddMinutes(1),
-                DateTime.Now, 
-                Array.Empty<Option>()
+                DateTime.Now
             );
             
             Assert.False(proposal.IsVoteClosed());
@@ -52,8 +46,7 @@ namespace Answap.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 DateTime.Now.AddMinutes(-1),
-                DateTime.Now, 
-                Array.Empty<Option>()
+                DateTime.Now
             );
             
             Assert.True(proposal.IsVoteClosed());
@@ -70,8 +63,7 @@ namespace Answap.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 DateTime.Now.AddMinutes(-1),
-                DateTime.Now, 
-                Array.Empty<Option>()
+                DateTime.Now
             );
             
             Assert.Equal("FOR", proposal.DeclareWinner(new []{vote1, vote2, vote3}));

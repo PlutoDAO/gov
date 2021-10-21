@@ -14,7 +14,7 @@ namespace Answap.Gov.Domain
         public DateTime Created;
         private Option[] Options;
         
-        public Proposal(string name, string description, string creator, DateTime deadline, DateTime created, Option[] options)
+        public Proposal(string name, string description, string creator, DateTime deadline, DateTime created)
         {
             Name = name;
             Description = description;

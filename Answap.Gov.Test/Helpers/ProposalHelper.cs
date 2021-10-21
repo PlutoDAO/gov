@@ -15,9 +15,8 @@ namespace Answap.Gov.Test.Helpers
                 "ABC", 
                 "abcdef", 
                 new DateTime(),
-                new DateTime(), 
-                options
-                );
+                new DateTime()
+            );
         }
 
         public static string GetName()
