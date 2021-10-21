@@ -40,6 +40,22 @@ namespace Answap.Gov.Test.Domain
         }
         
         [Fact]
+        public void TestCastVote()
+        {
+            var proposal = new Proposal(
+                ProposalHelper.GetName(),
+                ProposalHelper.GetDescription(),
+                ProposalHelper.GetFakeCreator(),
+                DateTime.Now.AddMinutes(1),
+                DateTime.Now
+            );
+            var vote = new Vote("FakeVoter", new Option("FOR"), "FakeToken", 1);
+            var validatedVote = proposal.CastVote(vote);
+
+            Assert.IsType<ValidatedVote>(validatedVote);
+        }
+        
+        [Fact]
         public void TestIsVoteClosedReturnsTrueIfDeadlineHasPassed()
         {
             var proposal = new Proposal(

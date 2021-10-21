@@ -26,7 +26,7 @@ namespace Answap.Gov.Domain
             };
         }
 
-        public Vote CastVote(Vote vote)
+        public ValidatedVote CastVote(Vote vote)
         {
             if(!Array.Exists(Options, option => option.Name == vote.Option.Name))
             {
@@ -37,7 +37,7 @@ namespace Answap.Gov.Domain
             {
                 throw new DeadlinePassedException($"The deadline for this proposal has passed");
             }
-            return vote;
+            return new ValidatedVote(vote.Voter, vote.Option, vote.Token, vote.Value);
         }
         
         public bool IsVoteClosed()
