@@ -26,18 +26,18 @@ namespace Answap.Gov.Domain
             };
         }
 
-        public void CastVote(Vote vote)
+        public Vote CastVote(Vote vote)
         {
             if (!Options.Contains(vote.Option))
             {
-                throw new InvalidOptionException($"The option {vote.Option} is not valid in this proposal");
+                throw new InvalidOptionException($"The option {vote.Option.Name} is not valid in this proposal");
             }
 
             if (IsVoteClosed())
             {
                 throw new DeadlinePassedException($"The deadline for this proposal has passed");
             }
-            return;
+            return vote;
         }
         
         public bool IsVoteClosed()
