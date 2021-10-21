@@ -45,19 +45,19 @@ namespace Answap.Gov.Domain
             return DateTime.Now >= Deadline;
         }
         
-        public string DeclareWinner(Vote[] votes)
+        public Option DeclareWinner(Vote[] votes)
         {
 
-            var voteCount = new Dictionary<string, decimal>();
+            var voteCount = new Dictionary<Option, decimal>();
             for (int i = 0; i < votes.Length; i++)
             {
-                if (voteCount.ContainsKey(votes[i].Option.Name))
+                if (voteCount.ContainsKey(votes[i].Option))
                 {
-                    voteCount[votes[i].Option.Name] += votes[i].Value;
+                    voteCount[votes[i].Option] += votes[i].Value;
                 }
                 else
                 {
-                    voteCount[votes[i].Option.Name] = votes[i].Value;
+                    voteCount[votes[i].Option] = votes[i].Value;
                 }
             }
             

@@ -66,8 +66,10 @@ namespace Answap.Gov.Test.Domain
                 DateTime.Now.AddMinutes(-1),
                 DateTime.Now
             );
+
+            var winningOption = proposal.DeclareWinner(new[] {vote1, vote2, vote3});
             
-            Assert.Equal("FOR", proposal.DeclareWinner(new []{vote1, vote2, vote3}));
+            Assert.Equal("FOR", winningOption.Name);
         }
     }
 }
