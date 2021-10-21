@@ -19,7 +19,8 @@ namespace Answap.Gov.Test.Domain
                 ProposalHelper.GetDeadline()
             );
 
-            var invalidVote = new Vote(VoteHelper.GetFakeVoter(), new Option("NO"), VoteHelper.GetFakeToken(), 1000);
+            var invalidOption = new Option("NO");
+            var invalidVote = new Vote(VoteHelper.GetFakeVoter(), invalidOption, VoteHelper.GetFakeToken(), 1000);
 
             Assert.Throws<InvalidOptionException>(() => proposal.CastVote(invalidVote));
         }
