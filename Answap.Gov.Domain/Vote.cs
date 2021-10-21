@@ -1,3 +1,5 @@
+using System;
+
 namespace Answap.Gov.Domain
 {
     public class Vote
@@ -12,7 +14,7 @@ namespace Answap.Gov.Domain
             Voter = voter;
             Option = option;
             Token = token;
-            Value = value;
+            Value = value <= 0 ? throw new ArgumentOutOfRangeException(nameof(value),$"Only positive values are allowed") : value;
         }
 
     }
