@@ -12,7 +12,7 @@ namespace Answap.Gov.Test
             var option = new Option("FOR");
             
             Assert.Equal("FOR", option.Name);
-            Assert.Throws<ArgumentNullException>(() => new Option( ""));
+            Assert.Throws<ArgumentNullException>(() => new Option(""));
             Assert.Throws<ArgumentNullException>(() => new Option("      "));
             Assert.Throws<ArgumentNullException>(() => new Option(null));
         }
