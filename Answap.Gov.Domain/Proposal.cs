@@ -28,7 +28,7 @@ namespace Answap.Gov.Domain
 
         public Vote CastVote(Vote vote)
         {
-            if (!Options.Contains(vote.Option))
+            if(!Array.Exists(Options, option => option.Name == vote.Option.Name))
             {
                 throw new InvalidOptionException($"The option {vote.Option.Name} is not valid in this proposal");
             }
