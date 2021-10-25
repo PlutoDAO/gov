@@ -42,7 +42,7 @@ namespace Answap.Gov.Domain
 
             if (!WhiteListedAssets.ContainsAsset(vote.Asset))
             {
-                throw new NotWhitelistedAssetException($"The selected asset is not allowed in this proposal");
+                throw new AssetNotWhitelistedException($"The selected asset is not allowed in this proposal");
             }
             
             return new ValidatedVote(vote.Voter, vote.Option, vote.Asset, vote.Amount);
