@@ -1,5 +1,6 @@
 using System;
 using Answap.Gov.Domain;
+using Answap.Gov.Test.Helpers;
 using Xunit;
 
 namespace Answap.Gov.Test.Domain
@@ -9,15 +10,16 @@ namespace Answap.Gov.Test.Domain
         [Fact]
         public void TestCreateVote()
         {
-            var vote = new Vote("FakeVoter", new Option("FOR"), "FakeToken", 1);
+            var ani = AssetHelper.GetAni();
+            var vote = new Vote("FakeVoter", new Option("FOR"), ani, 1);
             
             Assert.Equal("FakeVoter", vote.Voter);
             Assert.Equal("FOR", vote.Option.Name);
-            Assert.Equal("FakeToken", vote.Token);
-            Assert.Equal(1, vote.Value);
+            Assert.Equal(ani, vote.Asset);
+            Assert.Equal(1, vote.Amount);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => new Vote("FakeVoter", new Option("FOR"), "FakeToken", 0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new Vote("FakeVoter", new Option("FOR"), "FakeToken", -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new Vote("FakeVoter", new Option("FOR"), ani, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new Vote("FakeVoter", new Option("FOR"), ani, -1));
         }
     }
 }
