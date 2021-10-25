@@ -12,15 +12,17 @@ namespace Answap.Gov.Domain
         public string Creator;
         public DateTime Deadline;
         public DateTime Created;
+        public WhitelistedAsset WhiteListedAssets;
         private Option[] Options;
         
-        public Proposal(string name, string description, string creator, DateTime deadline, DateTime created)
+        public Proposal(string name, string description, string creator, DateTime deadline, DateTime created, WhitelistedAsset whitelistedAsset)
         {
             Name = name;
             Description = description;
             Creator = creator;
             Deadline = deadline;
             Created = created;
+            WhiteListedAssets = whitelistedAsset;
             Options = new []{
                 new Option("FOR"), new Option("AGAINST")
             };
@@ -37,7 +39,13 @@ namespace Answap.Gov.Domain
             {
                 throw new DeadlinePassedException($"The deadline for this proposal has passed");
             }
-            return new ValidatedVote(vote.Voter, vote.Option, vote.Token, vote.Value);
+
+            if (!WhiteListedAssets.ContainsAsset(vote.Asset))
+            {
+                throw new NotWhitelistedAssetException($"The selected asset is not allowed in this proposal");
+            }
+            
+            return new ValidatedVote(vote.Voter, vote.Option, vote.Asset, vote.Amount);
         }
         
         public bool IsVoteClosed()
@@ -45,22 +53,21 @@ namespace Answap.Gov.Domain
             return DateTime.Now >= Deadline;
         }
         
-        public Option DeclareWinner(Vote[] votes)
+        public Option DeclareWinner(ValidatedVote[] votes)
         {
-
             var voteCount = new Dictionary<Option, decimal>();
             for (int i = 0; i < votes.Length; i++)
             {
                 if (voteCount.ContainsKey(votes[i].Option))
                 {
-                    voteCount[votes[i].Option] += votes[i].Value;
+                    voteCount[votes[i].Option] += votes[i].Amount * WhiteListedAssets.GetMultiplier(votes[i].Asset);
                 }
                 else
                 {
-                    voteCount[votes[i].Option] = votes[i].Value;
+                    voteCount[votes[i].Option] = votes[i].Amount * WhiteListedAssets.GetMultiplier(votes[i].Asset);
                 }
             }
-            
+
             return voteCount.OrderByDescending(pair => pair.Value).First().Key;
         }
     }
