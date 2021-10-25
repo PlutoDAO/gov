@@ -15,7 +15,8 @@ namespace Answap.Gov.Test.Helpers
                 "ABC", 
                 "abcdef", 
                 new DateTime(),
-                new DateTime()
+                new DateTime(),
+                WhitelistedAssetHelper.GetWhitelistedAssets()
             );
         }
 
