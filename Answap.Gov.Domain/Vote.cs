@@ -6,15 +6,15 @@ namespace Answap.Gov.Domain
     {
         public string Voter;
         public Option Option;
-        public string Token;
-        public decimal Value;
+        public Asset Asset;
+        public decimal Amount;
         
-        public Vote(string voter, Option option, string token, decimal value)
+        public Vote(string voter, Option option, Asset asset, decimal amount)
         {
             Voter = voter;
             Option = option;
-            Token = token;
-            Value = value <= 0 ? throw new ArgumentOutOfRangeException(nameof(value),$"Only positive values are allowed") : value;
+            Asset = asset;
+            Amount = amount <= 0 ? throw new ArgumentOutOfRangeException(nameof(amount),$"Only positive amounts are allowed") : amount;
         }
 
     }
