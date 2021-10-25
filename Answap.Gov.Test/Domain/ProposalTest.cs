@@ -88,7 +88,7 @@ namespace Answap.Gov.Test.Domain
             var fakeAsset = AssetHelper.GetFakeAsset();
             var vote = new Vote("FakeVoter", new Option("FOR"), fakeAsset, 1);
 
-            Assert.Throws<NotWhitelistedAssetException>(() => proposal.CastVote(vote));
+            Assert.Throws<AssetNotWhitelistedException>(() => proposal.CastVote(vote));
         }
 
         [Fact]
