@@ -58,13 +58,14 @@ namespace Answap.Gov.Domain
             var voteCount = new Dictionary<Option, decimal>();
             for (int i = 0; i < votes.Length; i++)
             {
+                var calculatedVote = votes[i].Amount * WhiteListedAssets.GetMultiplier(votes[i].Asset);
                 if (voteCount.ContainsKey(votes[i].Option))
                 {
-                    voteCount[votes[i].Option] += votes[i].Amount * WhiteListedAssets.GetMultiplier(votes[i].Asset);
+                    voteCount[votes[i].Option] += calculatedVote;
                 }
                 else
                 {
-                    voteCount[votes[i].Option] = votes[i].Amount * WhiteListedAssets.GetMultiplier(votes[i].Asset);
+                    voteCount[votes[i].Option] = calculatedVote;
                 }
             }
 
