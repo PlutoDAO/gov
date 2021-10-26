@@ -95,9 +95,9 @@ namespace Answap.Gov.Test.Domain
         public void TestDeclareWinnerFindsTheWinnerOption()
         {
             var ani = AssetHelper.GetAni();
-            var validatedVote1 = new ValidatedVote("voter1", new Option("FOR"), ani, 1);
-            var validatedVote2 = new ValidatedVote("voter2", new Option("FOR"), ani, 2);
-            var validatedVote3 = new ValidatedVote("voter3", new Option("AGAINST"), ani, 2);
+            var validatedVote1 = new ValidatedVote(new Vote("voter1", new Option("FOR"), ani, 1));
+            var validatedVote2 = new ValidatedVote(new Vote("voter2", new Option("FOR"), ani, 2));
+            var validatedVote3 = new ValidatedVote(new Vote("voter3", new Option("AGAINST"), ani, 2));
             var proposal = new Proposal(
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
@@ -118,9 +118,9 @@ namespace Answap.Gov.Test.Domain
             var ani = AssetHelper.GetAni();
             var ars = AssetHelper.GetArs();
             var usdc = AssetHelper.GetUsdc();
-            var validatedVote1 = new ValidatedVote("voter1", new Option("FOR"), ani, 2);
-            var validatedVote2 = new ValidatedVote("voter2", new Option("AGAINST"), ars, 2);
-            var validatedVote3 = new ValidatedVote("voter3", new Option("AGAINST"), usdc, 2);
+            var validatedVote1 = new ValidatedVote(new Vote("voter1", new Option("FOR"), ani, 2));
+            var validatedVote2 = new ValidatedVote(new Vote("voter2", new Option("AGAINST"), ars, 2));
+            var validatedVote3 = new ValidatedVote(new Vote("voter3", new Option("AGAINST"), usdc, 2));
             var proposal = new Proposal(
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
