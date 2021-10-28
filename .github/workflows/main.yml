@@ -20,4 +20,4 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity normal ./Answap.Gov.Test
+        run: dotnet test --no-build --verbosity normal ./PlutoDAO.Gov.Test
