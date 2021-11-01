@@ -2,7 +2,7 @@ using System;
 
 namespace PlutoDAO.Gov.Domain
 {
-    public class Asset
+    public class Asset : IEquatable<Asset>
     {
         public Asset(AccountAddress issuer, string code, bool isNative = false)
         {
@@ -17,10 +17,21 @@ namespace PlutoDAO.Gov.Domain
 
         public bool Equals(Asset asset)
         {
+            if (asset is null) return false;
             if (asset.IsNative && IsNative)
                 return true;
 
             return asset.Code == Code && Issuer.Address == asset.Issuer.Address;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Asset);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Code, IsNative, Issuer);
         }
     }
 }
