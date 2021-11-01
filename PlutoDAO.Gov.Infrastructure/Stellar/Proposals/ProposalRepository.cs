@@ -7,11 +7,19 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 {
     public class ProposalRepository : IProposalRepository
     {
-    public ProposalRepository(){}
-
-    public async Task<Proposal> FindProposal(string address)
-    {
-        return new Proposal("nombre", "description", "creator", DateTime.Today, DateTime.Now, new WhitelistedAsset());
-    }
+        public async Task<Proposal> FindProposal(string address)
+        {
+            return new Proposal(
+                "name",
+                "description",
+                "creator",
+                DateTime.Today,
+                DateTime.Now,
+                new[]
+                {
+                    new WhitelistedAsset(new Asset(new AccountAddress("STELLAR"), "XLM", true), 1)
+                }
+            );
+        }
     }
 }
