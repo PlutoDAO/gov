@@ -7,23 +7,23 @@ namespace PlutoDAO.Gov.Domain
 {
     public class Proposal
     {
-        public readonly string Name;
-        public readonly string Description;
-        public readonly string Creator;
-        public DateTime Deadline;
-        public DateTime Created;
-        public readonly WhitelistedAsset WhitelistedAssets;
         private readonly IEnumerable<Option> _options;
+        public readonly string Creator;
+        public readonly string Description;
+        public readonly string Name;
+        public readonly IEnumerable<WhitelistedAsset> WhitelistedAssets;
+        public DateTime Created;
+        public DateTime Deadline;
 
         public Proposal(string name, string description, string creator, DateTime deadline, DateTime created,
-            WhitelistedAsset whitelistedAsset)
+            IEnumerable<WhitelistedAsset> whitelistedAssets)
         {
             Name = name;
             Description = description;
             Creator = creator;
             Deadline = deadline;
             Created = created;
-            WhitelistedAssets = whitelistedAsset;
+            WhitelistedAssets = whitelistedAssets;
             _options = new[]
             {
                 new Option("FOR"), new Option("AGAINST")
@@ -34,7 +34,7 @@ namespace PlutoDAO.Gov.Domain
         {
             if (IsVoteClosed())
             {
-                throw new DeadlinePassedException($"The deadline for this proposal has passed");
+                throw new DeadlinePassedException("The deadline for this proposal has passed");
             }
 
             if (!_options.Contains(vote.Option))
@@ -42,9 +42,9 @@ namespace PlutoDAO.Gov.Domain
                 throw new InvalidOptionException($"The option {vote.Option.Name} is not valid in this proposal");
             }
 
-            if (!WhitelistedAssets.ContainsAsset(vote.Asset))
+            if (!WhitelistedAssets.Any(asset => asset.Equals(vote.Asset)))
             {
-                throw new AssetNotWhitelistedException($"The selected asset is not allowed in this proposal");
+                throw new AssetNotWhitelistedException("The selected asset is not allowed in this proposal");
             }
 
             return new ValidatedVote(vote);
@@ -55,19 +55,20 @@ namespace PlutoDAO.Gov.Domain
             return DateTime.Now >= Deadline;
         }
 
-        public Option DeclareWinner(ValidatedVote[] votes)
+        public Option DeclareWinner(IEnumerable<ValidatedVote> votes)
         {
             var voteCount = new Dictionary<Option, decimal>();
-            for (int i = 0; i < votes.Length; i++)
+            foreach (var vote in votes)
             {
-                var calculatedVote = votes[i].Amount * WhitelistedAssets.GetMultiplier(votes[i].Asset);
-                if (voteCount.ContainsKey(votes[i].Option))
+                var multiplier = WhitelistedAssets.First(asset => asset.Equals(vote.Asset)).Multiplier;
+                var calculatedVote = vote.Amount * multiplier;
+                if (voteCount.ContainsKey(vote.Option))
                 {
-                    voteCount[votes[i].Option] += calculatedVote;
+                    voteCount[vote.Option] += calculatedVote;
                 }
                 else
                 {
-                    voteCount[votes[i].Option] = calculatedVote;
+                    voteCount[vote.Option] = calculatedVote;
                 }
             }
 

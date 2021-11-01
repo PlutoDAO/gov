@@ -1,22 +1,41 @@
-using System.Collections.Generic;
-using System.Linq;
+using System;
 
 namespace PlutoDAO.Gov.Domain
 {
-    public class WhitelistedAsset : Dictionary<Asset, decimal>
+    public class WhitelistedAsset : IEquatable<WhitelistedAsset>, IEquatable<Asset>
     {
-        public WhitelistedAsset()
+        public WhitelistedAsset(Asset asset, decimal multiplier)
         {
+            Asset = asset;
+            Multiplier = multiplier;
         }
 
-        public bool ContainsAsset(Asset asset)
+        public Asset Asset { get; }
+        public decimal Multiplier { get; }
+
+        public bool Equals(Asset other)
         {
-            return this.Any(a => a.Key.Equals(asset));
+            return other is not null && Asset.Equals(Asset);
         }
 
-        public decimal GetMultiplier(Asset asset)
+        public bool Equals(WhitelistedAsset other)
         {
-            return this.Single(a => a.Key.Equals(asset)).Value;
+            return other is not null && Asset.Equals(other.Asset);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj switch
+            {
+                WhitelistedAsset asset => Equals(asset),
+                Asset asset => Equals(asset),
+                _ => false
+            };
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Asset, Multiplier);
         }
     }
 }
