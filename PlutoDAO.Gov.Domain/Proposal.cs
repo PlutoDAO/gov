@@ -12,7 +12,7 @@ namespace PlutoDAO.Gov.Domain
         public string Creator;
         public DateTime Deadline;
         public DateTime Created;
-        public WhitelistedAsset WhiteListedAssets;
+        public WhitelistedAsset WhitelistedAssets;
         private Option[] Options;
         
         public Proposal(string name, string description, string creator, DateTime deadline, DateTime created, WhitelistedAsset whitelistedAsset)
@@ -22,7 +22,7 @@ namespace PlutoDAO.Gov.Domain
             Creator = creator;
             Deadline = deadline;
             Created = created;
-            WhiteListedAssets = whitelistedAsset;
+            WhitelistedAssets = whitelistedAsset;
             Options = new []{
                 new Option("FOR"), new Option("AGAINST")
             };
@@ -40,7 +40,7 @@ namespace PlutoDAO.Gov.Domain
                 throw new DeadlinePassedException($"The deadline for this proposal has passed");
             }
 
-            if (!WhiteListedAssets.ContainsAsset(vote.Asset))
+            if (!WhitelistedAssets.ContainsAsset(vote.Asset))
             {
                 throw new AssetNotWhitelistedException($"The selected asset is not allowed in this proposal");
             }
@@ -58,7 +58,7 @@ namespace PlutoDAO.Gov.Domain
             var voteCount = new Dictionary<Option, decimal>();
             for (int i = 0; i < votes.Length; i++)
             {
-                var calculatedVote = votes[i].Amount * WhiteListedAssets.GetMultiplier(votes[i].Asset);
+                var calculatedVote = votes[i].Amount * WhitelistedAssets.GetMultiplier(votes[i].Asset);
                 if (voteCount.ContainsKey(votes[i].Option))
                 {
                     voteCount[votes[i].Option] += calculatedVote;
