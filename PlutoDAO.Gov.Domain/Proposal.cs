@@ -7,15 +7,16 @@ namespace PlutoDAO.Gov.Domain
 {
     public class Proposal
     {
-        public string Name;
-        public string Description;
-        public string Creator;
+        public readonly string Name;
+        public readonly string Description;
+        public readonly string Creator;
         public DateTime Deadline;
         public DateTime Created;
-        public WhitelistedAsset WhitelistedAssets;
-        private Option[] Options;
-        
-        public Proposal(string name, string description, string creator, DateTime deadline, DateTime created, WhitelistedAsset whitelistedAsset)
+        public readonly WhitelistedAsset WhitelistedAssets;
+        private readonly IEnumerable<Option> _options;
+
+        public Proposal(string name, string description, string creator, DateTime deadline, DateTime created,
+            WhitelistedAsset whitelistedAsset)
         {
             Name = name;
             Description = description;
@@ -23,36 +24,37 @@ namespace PlutoDAO.Gov.Domain
             Deadline = deadline;
             Created = created;
             WhitelistedAssets = whitelistedAsset;
-            Options = new []{
+            _options = new[]
+            {
                 new Option("FOR"), new Option("AGAINST")
             };
         }
 
         public ValidatedVote CastVote(Vote vote)
         {
-            if(!Array.Exists(Options, option => option.Name == vote.Option.Name))
-            {
-                throw new InvalidOptionException($"The option {vote.Option.Name} is not valid in this proposal");
-            }
-
             if (IsVoteClosed())
             {
                 throw new DeadlinePassedException($"The deadline for this proposal has passed");
+            }
+
+            if (!_options.Contains(vote.Option))
+            {
+                throw new InvalidOptionException($"The option {vote.Option.Name} is not valid in this proposal");
             }
 
             if (!WhitelistedAssets.ContainsAsset(vote.Asset))
             {
                 throw new AssetNotWhitelistedException($"The selected asset is not allowed in this proposal");
             }
-            
+
             return new ValidatedVote(vote);
         }
-        
+
         public bool IsVoteClosed()
         {
             return DateTime.Now >= Deadline;
         }
-        
+
         public Option DeclareWinner(ValidatedVote[] votes)
         {
             var voteCount = new Dictionary<Option, decimal>();
