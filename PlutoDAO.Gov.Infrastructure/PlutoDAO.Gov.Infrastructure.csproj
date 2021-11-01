@@ -8,4 +8,9 @@
       <PackageReference Include="stellar-dotnet-sdk" Version="7.2.8" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PlutoDAO.Gov.Application\PlutoDAO.Gov.Application.csproj" />
+      <ProjectReference Include="..\PlutoDAO.Gov.Domain\PlutoDAO.Gov.Domain.csproj" />
+    </ItemGroup>
+
 </Project>
