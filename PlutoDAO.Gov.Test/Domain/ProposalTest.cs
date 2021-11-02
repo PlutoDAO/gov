@@ -15,8 +15,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                ProposalHelper.GetCreationDate(),
-                ProposalHelper.GetDeadline(),
+                DateTime.Now.AddMinutes(1),
+                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets()
             );
 
