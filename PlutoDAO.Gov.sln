@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlutoDAO.Gov.Test", "PlutoD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlutoDAO.Gov.Application", "PlutoDAO.Gov.Application\PlutoDAO.Gov.Application.csproj", "{DF4EC302-B65F-484A-9EFE-12ACDFB59CEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlutoDAO.Gov.Test.Integration", "PlutoDAO.Gov.Test.Integration\PlutoDAO.Gov.Test.Integration.csproj", "{BF0B2AD0-4324-409E-A0EA-8B1E9DE3782F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{DF4EC302-B65F-484A-9EFE-12ACDFB59CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF4EC302-B65F-484A-9EFE-12ACDFB59CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF4EC302-B65F-484A-9EFE-12ACDFB59CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF0B2AD0-4324-409E-A0EA-8B1E9DE3782F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF0B2AD0-4324-409E-A0EA-8B1E9DE3782F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF0B2AD0-4324-409E-A0EA-8B1E9DE3782F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF0B2AD0-4324-409E-A0EA-8B1E9DE3782F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
