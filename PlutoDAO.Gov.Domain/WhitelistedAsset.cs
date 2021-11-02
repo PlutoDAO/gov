@@ -15,7 +15,7 @@ namespace PlutoDAO.Gov.Domain
 
         public bool Equals(Asset other)
         {
-            return other is not null && Asset.Equals(Asset);
+            return other is not null && Asset.Equals(other);
         }
 
         public bool Equals(WhitelistedAsset other)
