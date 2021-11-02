@@ -21,3 +21,19 @@ jobs:
         run: dotnet build --no-restore
       - name: Run Unit Tests
         run: dotnet test --no-build --verbosity normal ./PlutoDAO.Gov.Test
+      - name: Build docker images
+        run: docker-compose build
+      - name: Start Stellar Server
+        run: docker-compose -f ./PlutoDAO.Gov.Test.Integration/docker-compose.yml up -d
+      - name: Check running containers
+        run: docker ps -a
+      - name: Sleep for 30 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '30s'
+      - name: Check logs
+        run: docker logs stellar
+      - name: Copy default appsettings file
+        run: cp ./PlutoDAO.Gov.Test.Integration/appsettings.test.json.dist ./PlutoDAO.Gov.Test.Integration/bin/Debug/net5.0/appsettings.test.json
+      - name: Run Integration tests
+        run: dotnet test --no-build --verbosity diag ./PlutoDAO.Gov.Test.Integration
