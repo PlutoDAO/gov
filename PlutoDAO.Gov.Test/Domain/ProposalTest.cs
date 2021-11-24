@@ -1,5 +1,6 @@
 using PlutoDAO.Gov.Domain;
 using System;
+using System.Linq;
 using PlutoDAO.Gov.Domain.Exceptions;
 using PlutoDAO.Gov.Test.Helpers;
 using Xunit;
@@ -8,6 +9,55 @@ namespace PlutoDAO.Gov.Test.Domain
 {
     public class ProposalTest
     {
+        [Fact]
+        public void TestCreateProposal()
+        {
+            var proposal = new Proposal(
+                ProposalHelper.GetName(),
+                ProposalHelper.GetDescription(),
+                ProposalHelper.GetFakeCreator(),
+                DateTime.Now.AddMinutes(1),
+                DateTime.Now,
+                WhitelistedAssetHelper.GetWhitelistedAssets()
+            );
+            
+            Assert.Equal("FakeProposal", proposal.Name);
+            Assert.Equal("FakeDescription", proposal.Description);
+            Assert.Equal("GAE2DCGCQX73JCSKYFU6GPMKAWTJGE5QWFY63HLL3LMVP7327OA3GCF5", proposal.Creator);
+            Assert.IsType<DateTime>(proposal.Deadline);
+            Assert.IsType<DateTime>(proposal.Created);
+            Assert.Equal("PLT", proposal.WhitelistedAssets.ToArray()[0].Asset.Code);
+            Assert.Equal(2m, proposal.WhitelistedAssets.ToArray()[0].Multiplier);
+            Assert.Equal("GASBEY5ZIN2TMX2FGPCXA35BMPHA4DYLYKLNELYB2BNNEAK6UHGPTPT5", proposal.WhitelistedAssets.ToArray()[0].Asset.Issuer.Address);
+            Assert.Equal("ARS", proposal.WhitelistedAssets.ToArray()[1].Asset.Code);
+            Assert.Equal(0.5m, proposal.WhitelistedAssets.ToArray()[1].Multiplier);
+            Assert.Equal("GBULTDG6BUINYKK3QDKB2MHXLK7U2ZHN42D4ILQE7IKV23K22QVD2SSK", proposal.WhitelistedAssets.ToArray()[1].Asset.Issuer.Address);
+            Assert.Equal("USDC", proposal.WhitelistedAssets.ToArray()[2].Asset.Code);
+            Assert.Equal(1m, proposal.WhitelistedAssets.ToArray()[2].Multiplier);
+            Assert.Equal("GDFC47X4UKIAFMYV3EFRFSMDGIYQRUZGTCGATU6JX2D2M6S2KXRUHPUZ", proposal.WhitelistedAssets.ToArray()[2].Asset.Issuer.Address);
+
+            Assert.Throws<ArgumentException>(() => new Proposal("",
+                "FakeDescription",
+                "ProposalHelper.GetFakeCreator()",
+                DateTime.Now.AddMinutes(1),
+                DateTime.Now,
+                WhitelistedAssetHelper.GetWhitelistedAssets()));
+            
+            Assert.Throws<ArgumentException>(() => new Proposal("     ",
+                "FakeDescription",
+                "ProposalHelper.GetFakeCreator()",
+                DateTime.Now.AddMinutes(1),
+                DateTime.Now,
+                WhitelistedAssetHelper.GetWhitelistedAssets()));
+            
+            Assert.Throws<ArgumentException>(() => new Proposal(null,
+                "FakeDescription",
+                "ProposalHelper.GetFakeCreator()",
+                DateTime.Now.AddMinutes(1),
+                DateTime.Now,
+                WhitelistedAssetHelper.GetWhitelistedAssets()));
+        }
+        
         [Fact]
         public void TestCannotVoteIfVoteIsInvalid()
         {
@@ -66,11 +116,10 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(-1),
-                DateTime.Now,
+                DateTime.Parse("20/11/2021 13:08:19"),
+                DateTime.Parse("19/11/2021 13:08:19"),
                 WhitelistedAssetHelper.GetWhitelistedAssets()
             );
-            
             Assert.True(proposal.IsVoteClosed());
         }
 
@@ -102,7 +151,7 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(-1),
+                DateTime.Now.AddMilliseconds(10),
                 DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets()
             );
