@@ -15,15 +15,15 @@ namespace PlutoDAO.Gov.Domain
         public DateTime Created;
         public DateTime Deadline;
 
-        public Proposal(string name, string description, string creator, DateTime deadline, DateTime created,
+        public Proposal(string name, string description, string creator, DateTime deadline, DateTime? created,
             IEnumerable<WhitelistedAsset> whitelistedAssets)
         {
-            Name = name;
-            Description = description;
-            Creator = creator;
-            Deadline = deadline;
-            Created = created;
-            WhitelistedAssets = whitelistedAssets;
+            Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("The proposal name field cannot or empty") : name;
+            Description = string.IsNullOrWhiteSpace(description) ? throw new ArgumentException("The proposal description field cannot or empty") : description;
+            Creator = string.IsNullOrWhiteSpace(creator) ? throw new ArgumentException("The proposal creator field cannot or empty") : creator;
+            Deadline = deadline < created ? throw new ArgumentException("The deadline cannot be before the creation date") : deadline;
+            Created = created ?? DateTime.Now;
+            WhitelistedAssets = !whitelistedAssets.Any() ? throw new ArgumentException("The allowed asset list cannot be empty") : whitelistedAssets;
             _options = new[]
             {
                 new Option("FOR"), new Option("AGAINST")
