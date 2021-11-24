@@ -1,18 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Infrastructure.Stellar.Proposals;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using PlutoDAO.Gov.Infrastructure.Stellar;
+using stellar_dotnet_sdk;
 
 namespace PlutoDAO.Gov.WebApi
 {
@@ -28,6 +24,14 @@ namespace PlutoDAO.Gov.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped(_ => new SystemAccountConfiguration(
+                Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_SENDER_ACCOUNT_PRIVATE_KEY") ??
+                throw new ApplicationException("PLUTODAO_PROPOSAL_SENDER_ACCOUNT_PRIVATE_KEY not set"),
+                Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_RECEIVER_ACCOUNT_PRIVATE_KEY") ??
+                throw new ApplicationException("PLUTODAO_PROPOSAL_RECEIVER_ACCOUNT_PRIVATE_KEY not set")));
+            
+            services.AddScoped(_ => new Server(Environment.GetEnvironmentVariable("HORIZON_URL")));
+            
             services.AddScoped<ProposalService>();
             services.AddScoped<IProposalRepository, ProposalRepository>();
             
@@ -46,6 +50,25 @@ namespace PlutoDAO.Gov.WebApi
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlutoDAO.Gov.WebApi v1"));
+            }
+            
+            if (env.IsDevelopment())
+            {
+                Network.Use(new Network(Environment.GetEnvironmentVariable("HORIZON_NETWORK_PASSPHRASE")));
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlutoDAO.Gov.WebApi v1"));
+            }
+            else if (env.IsStaging())
+            {
+                Network.UseTestNetwork();
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlutoDAO.Gov.WebApi v1"));
+            }
+            else
+            {
+                Network.UsePublicNetwork();
             }
 
             app.UseHttpsRedirection();
