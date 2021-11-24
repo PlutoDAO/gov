@@ -32,8 +32,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 "name",
                 "description",
                 "creator",
+                DateTime.Now.AddHours(1),
                 DateTime.Today,
-                DateTime.Now,
                 new[]
                 {
                     new WhitelistedAsset(new DomainAsset(new AccountAddress("STELLAR"), "XLM", true), 1)
