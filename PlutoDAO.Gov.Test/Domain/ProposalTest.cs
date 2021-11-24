@@ -116,8 +116,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Parse("20/11/2021 13:08:19"),
-                DateTime.Parse("19/11/2021 13:08:19"),
+                DateTime.Parse("2021-11-20T16:08:19.290Z"),
+                DateTime.Parse("2021-11-19T16:08:19.290"),
                 WhitelistedAssetHelper.GetWhitelistedAssets()
             );
             Assert.True(proposal.IsVoteClosed());
