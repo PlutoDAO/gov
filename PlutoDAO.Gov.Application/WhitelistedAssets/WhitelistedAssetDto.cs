@@ -1,4 +1,5 @@
 using PlutoDAO.Gov.Application.Assets;
+using PlutoDAO.Gov.Domain;
 
 namespace PlutoDAO.Gov.Application.WhitelistedAssets
 {
@@ -6,5 +7,8 @@ namespace PlutoDAO.Gov.Application.WhitelistedAssets
     {
         public AssetDto Asset { get; set; }
         public decimal Multiplier { get; set; }
+
+        public static explicit operator WhitelistedAsset(WhitelistedAssetDto whitelistedAssetDto) => 
+            new((Asset)whitelistedAssetDto.Asset, whitelistedAssetDto.Multiplier);
     }
 }
