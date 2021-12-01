@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -43,7 +44,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("Proposal", proposal.Name);
             Assert.Equal("A testing proposal", proposal.Description);
             Assert.Equal("Creator", proposal.Creator);
-            Assert.Equal("19/11/2030 13:08:19", proposal.Deadline.ToString());
+            Assert.Equal("11/19/2030 16:08:19", proposal.Deadline.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
             Assert.Equal("PROPCOIN1", whitelistedAssets[0].Asset.Code);
             Assert.Equal(Config.PlutoDAOReceiverPublic, whitelistedAssets[0].Asset.Issuer);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
