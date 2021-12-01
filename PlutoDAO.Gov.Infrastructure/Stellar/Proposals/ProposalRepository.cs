@@ -188,15 +188,15 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
                     for (var i = 0; i < paymentsLength - 3; i++)
                     {
-                        encodedDigits += new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(i).Amount))
+                        encodedDigits += new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(i).Amount, CultureInfo.InvariantCulture)*10000000)
                             .ToString()
                             .PadLeft(16, '0');
                     }
                     
                     var lastPaymentAmount =
-                        new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 3).Amount))
+                        new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 3).Amount, CultureInfo.InvariantCulture)*10000000)
                             .ToString();
-                    var lastPaymentDigits = (int) Math.Round(decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 2).Amount));
+                    var lastPaymentDigits = (int) (decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 2).Amount, CultureInfo.InvariantCulture)*10000000);
                     encodedDigits += lastPaymentAmount.PadLeft(lastPaymentDigits, '0');
                     var finaldecodedProposals = HexToString(DecimalToHex(encodedDigits));
                     decodedProposals = decodedProposals.Append(new DecodedProposal(paymentsForOneTransaction.ElementAt(0).From, finaldecodedProposals, paymentsForOneTransaction.ElementAt(0).Timestamp));
