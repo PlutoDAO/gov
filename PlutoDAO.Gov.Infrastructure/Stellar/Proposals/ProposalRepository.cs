@@ -26,6 +26,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             _systemAccountConfiguration = systemAccountConfiguration;
             _server = server;
         }
+
         public async Task<Proposal> FindProposal(string address)
         {
             return new Proposal(
@@ -44,8 +45,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         public async Task SaveProposal(Proposal proposal)
         {
             const string assetCode = "PROPCOIN1";
-            var serializedProposal = JsonConvert.SerializeObject(proposal, new JsonSerializerSettings 
-            { 
+            var serializedProposal = JsonConvert.SerializeObject(proposal, new JsonSerializerSettings
+            {
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize
             });
             const long maxTokens = 100000000000;
@@ -54,30 +55,27 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             decimal encodedDataPayment;
             decimal totalPayments = 0;
 
-            serializedProposal = serializedProposal.Substring(0, serializedProposal.Length < 638 ? serializedProposal.Length : 638);
+            serializedProposal =
+                serializedProposal.Substring(0, serializedProposal.Length < 638 ? serializedProposal.Length : 638);
             var proposalSenderKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.SenderPrivateKey);
             var proposalReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey);
 
             var extraDigits = HexToDecimal(StringToHex(serializedProposal));
-            
-            for (var i = 0; i < extraDigits.Length; i+=16)
+
+            for (var i = 0; i < extraDigits.Length; i += 16)
             {
-                var encodedDataDecimalSection = decimal.Parse(extraDigits.Substring(i, (extraDigits.Length - i) > 16 ? 16 : extraDigits.Length - i ));
+                var encodedDataDecimalSection =
+                    decimal.Parse(extraDigits.Substring(i, extraDigits.Length - i > 16 ? 16 : extraDigits.Length - i));
                 encodedDataPayment = encodedDataDecimalSection / stellarPrecision;
-                
-                if (encodedDataPayment == 0) {
-                    encodedDataPayment = 1000000000;
-                }
+
+                if (encodedDataPayment == 0) encodedDataPayment = 1000000000;
 
                 extraPayments.Add(encodedDataPayment);
                 totalPayments += encodedDataPayment;
             }
-            
+
             decimal lastSequenceDigitCount = extraDigits.Length % 16;
-            if (lastSequenceDigitCount == 0)
-            {
-                lastSequenceDigitCount = 16;
-            }
+            if (lastSequenceDigitCount == 0) lastSequenceDigitCount = 16;
 
             encodedDataPayment = lastSequenceDigitCount / stellarPrecision;
             extraPayments.Add(encodedDataPayment);
@@ -88,20 +86,22 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var senderAccountResponse = await _server.Accounts.Account(proposalSenderKeyPair.AccountId);
             var senderAccount = new Account(proposalSenderKeyPair.AccountId, senderAccountResponse.SequenceNumber);
             var receiver = KeyPair.FromAccountId(proposalReceiverKeyPair.AccountId);
-            
+
             var txBuilder = new TransactionBuilder(senderAccount);
             var asset = Asset.CreateNonNativeAsset(assetCode, proposalReceiverKeyPair.AccountId);
-            
-            var changeTrustLineOp = new ChangeTrustOperation.Builder(ChangeTrustAsset.Create(asset)).SetSourceAccount(senderAccount.KeyPair).Build();
-            var paymentOp = new PaymentOperation.Builder(proposalSenderKeyPair, asset, maxTokens.ToString()).SetSourceAccount(receiver).Build();
+
+            var changeTrustLineOp = new ChangeTrustOperation.Builder(ChangeTrustAsset.Create(asset))
+                .SetSourceAccount(senderAccount.KeyPair).Build();
+            var paymentOp = new PaymentOperation.Builder(proposalSenderKeyPair, asset, maxTokens.ToString())
+                .SetSourceAccount(receiver).Build();
             txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp);
 
             foreach (var payment in extraPayments)
             {
                 var encodedTextPaymentOp = new PaymentOperation.Builder(
-                    receiver, 
-                    asset, 
-                    payment.ToString(CultureInfo.CreateSpecificCulture("en-us"))
+                        receiver,
+                        asset,
+                        payment.ToString(CultureInfo.CreateSpecificCulture("en-us"))
                     )
                     .SetSourceAccount(senderAccount.KeyPair)
                     .Build();
@@ -116,7 +116,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             tx.Sign(proposalReceiverKeyPair);
 
             var transactionResponse = await _server.SubmitTransaction(tx);
-            
+
             if (!transactionResponse.IsSuccess())
                 throw new ApplicationException(
                     transactionResponse
@@ -133,16 +133,17 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var recordsFound = recordsPerSearch;
             IList<object> transactionHashesAll = new List<object>();
             IEnumerable<object> transactionHashesUnique = null;
-            IEnumerable<Payment> paymentsForOneTransaction = new List<Payment>{};
+            IEnumerable<Payment> paymentsForOneTransaction = new List<Payment>();
             JObject jsonResponse;
             var proposalReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey);
             IEnumerable<DecodedProposal> decodedProposals = new List<DecodedProposal>();
-            string assetCode = "PROPCOIN1";
-            
-            var url = $"{Environment.GetEnvironmentVariable("HORIZON_URL")}accounts/{proposalReceiverKeyPair.AccountId}/payments?limit={recordsPerSearch}";
+            var assetCode = "PROPCOIN1";
 
-            IList<Payment> retrievedPayments = new List<Payment>{};
-            
+            var url =
+                $"{Environment.GetEnvironmentVariable("HORIZON_URL")}accounts/{proposalReceiverKeyPair.AccountId}/payments?limit={recordsPerSearch}";
+
+            IList<Payment> retrievedPayments = new List<Payment>();
+
             while (recordsFound == recordsPerSearch)
             {
                 IEnumerable<Record> records;
@@ -150,7 +151,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 {
                     var res = new WebClient().DownloadString(url);
 
-                    records = JObject.Parse(res).SelectTokens("$.._embedded.records[*]").Select(j => JsonConvert.DeserializeObject<Record>(j.ToString()));
+                    records = JObject.Parse(res).SelectTokens("$.._embedded.records[*]")
+                        .Select(j => JsonConvert.DeserializeObject<Record>(j.ToString()));
                     jsonResponse = JObject.Parse(res);
                 }
                 catch (Exception e)
@@ -160,20 +162,20 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 }
 
                 foreach (var record in records)
-                {
-                    if (record.transaction_successful && record.asset_code == assetCode && record.to == proposalReceiverKeyPair.AccountId)
+                    if (record.transaction_successful && record.asset_code == assetCode &&
+                        record.to == proposalReceiverKeyPair.AccountId)
                     {
-                        retrievedPayments.Add(new Payment(record.amount, record.from, record.transaction_hash, DateTimeOffset.Parse(record.created_at).ToUnixTimeSeconds()));
+                        retrievedPayments.Add(new Payment(record.amount, record.from, record.transaction_hash,
+                            DateTimeOffset.Parse(record.created_at).ToUnixTimeSeconds()));
                         transactionHashesAll.Add(record.transaction_hash);
                     }
-                }
 
                 recordsFound = jsonResponse["_embedded"]["records"].Count();
-                url = (string)jsonResponse["_links"]["next"]["href"];
+                url = (string) jsonResponse["_links"]["next"]["href"];
             }
-            
+
             transactionHashesUnique = transactionHashesAll.Select(transactionHash => transactionHash).Distinct();
-            
+
             // Concatenate Payments assigned to each Transaction Hash
             foreach (var uniqueTransactionHash in transactionHashesUnique.ToArray())
             {
@@ -181,25 +183,29 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                     payment.TransactionHash == (string) uniqueTransactionHash);
 
                 var paymentsLength = paymentsForOneTransaction.Count();
-                
+
                 if (paymentsForOneTransaction.Count() > 2)
                 {
-                    string encodedDigits = "";
+                    var encodedDigits = "";
 
                     for (var i = 0; i < paymentsLength - 3; i++)
-                    {
-                        encodedDigits += new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(i).Amount, CultureInfo.InvariantCulture)*10000000)
+                        encodedDigits += new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(i).Amount,
+                                CultureInfo.InvariantCulture) * 10000000)
                             .ToString()
                             .PadLeft(16, '0');
-                    }
-                    
+
                     var lastPaymentAmount =
-                        new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 3).Amount, CultureInfo.InvariantCulture)*10000000)
+                        new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 3).Amount,
+                                CultureInfo.InvariantCulture) * 10000000)
                             .ToString();
-                    var lastPaymentDigits = (int) (decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 2).Amount, CultureInfo.InvariantCulture)*10000000);
+                    var lastPaymentDigits =
+                        (int) (decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 2).Amount,
+                            CultureInfo.InvariantCulture) * 10000000);
                     encodedDigits += lastPaymentAmount.PadLeft(lastPaymentDigits, '0');
                     var finaldecodedProposals = HexToString(DecimalToHex(encodedDigits));
-                    decodedProposals = decodedProposals.Append(new DecodedProposal(paymentsForOneTransaction.ElementAt(0).From, finaldecodedProposals, paymentsForOneTransaction.ElementAt(0).Timestamp));
+                    decodedProposals = decodedProposals.Append(new DecodedProposal(
+                        paymentsForOneTransaction.ElementAt(0).From, finaldecodedProposals,
+                        paymentsForOneTransaction.ElementAt(0).Timestamp));
                 }
             }
 
@@ -228,14 +234,11 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         {
             hex = hex.Replace("-", "");
             var raw = new byte[hex.Length / 2];
-            for (var i = 0; i < raw.Length; i++)
-            {
-                raw[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
-            }
+            for (var i = 0; i < raw.Length; i++) raw[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
 
             return Encoding.ASCII.GetString(raw);
         }
-        
+
         private class Record
         {
             public string amount { get; set; }
@@ -249,10 +252,10 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
         private class Payment
         {
-            public string Amount;
-            public string From;
-            public string TransactionHash;
-            public long Timestamp;
+            public readonly string Amount;
+            public readonly string From;
+            public readonly long Timestamp;
+            public readonly string TransactionHash;
 
             public Payment(string amount, string from, string transactionHash, long timestamp)
             {
@@ -265,9 +268,9 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
         private class DecodedProposal
         {
+            public readonly string Content;
+            public readonly long Timestamp;
             public string From;
-            public string Content;
-            public long Timestamp;
 
             public DecodedProposal(string from, string content, long timestamp)
             {

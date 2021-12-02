@@ -10,7 +10,7 @@ namespace PlutoDAO.Gov.Test
         public void TestCreateOption()
         {
             var option = new Option("FOR");
-            
+
             Assert.Equal("FOR", option.Name);
             Assert.Throws<ArgumentNullException>(() => new Option(""));
             Assert.Throws<ArgumentNullException>(() => new Option("      "));
