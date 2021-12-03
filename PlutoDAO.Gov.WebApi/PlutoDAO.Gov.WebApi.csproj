@@ -5,11 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PlutoDAO.Gov.Infrastructure\PlutoDAO.Gov.Infrastructure.csproj" />
+        <ProjectReference Include="..\PlutoDAO.Gov.Infrastructure\PlutoDAO.Gov.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>

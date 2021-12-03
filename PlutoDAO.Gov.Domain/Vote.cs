@@ -4,18 +4,19 @@ namespace PlutoDAO.Gov.Domain
 {
     public class Vote
     {
-        public string Voter;
-        public Option Option;
-        public Asset Asset;
-        public decimal Amount;
-        
+        public readonly decimal Amount;
+        public readonly Asset Asset;
+        public readonly Option Option;
+        public readonly string Voter;
+
         public Vote(string voter, Option option, Asset asset, decimal amount)
         {
             Voter = voter;
             Option = option;
             Asset = asset;
-            Amount = amount <= 0 ? throw new ArgumentOutOfRangeException(nameof(amount),$"Only positive amounts are allowed") : amount;
+            Amount = amount <= 0
+                ? throw new ArgumentOutOfRangeException(nameof(amount), "Only positive amounts are allowed")
+                : amount;
         }
-
     }
 }

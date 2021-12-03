@@ -14,7 +14,9 @@ namespace PlutoDAO.Gov.Application.Assets
             set => _issuer = value == "STELLAR" ? "" : value;
         }
 
-        public static explicit operator Asset(AssetDto assetDto) =>
-            new(new AccountAddress(assetDto._issuer), assetDto.Code, assetDto.IsNative);
+        public static explicit operator Asset(AssetDto assetDto)
+        {
+            return new(new AccountAddress(assetDto._issuer), assetDto.Code, assetDto.IsNative);
+        }
     }
 }

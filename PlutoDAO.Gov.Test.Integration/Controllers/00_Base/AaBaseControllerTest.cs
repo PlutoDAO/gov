@@ -14,8 +14,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers._00_Base
     {
         private readonly WebApplicationFactory<Startup> _factory;
         private readonly ITestOutputHelper _testOutputHelper;
-        private TestConfiguration Config { get; }
-        
+
         public AaBaseControllerTest(
             WebApplicationFactory<Startup> factory,
             StellarFixture fixture, ITestOutputHelper testOutputHelper)
@@ -24,6 +23,8 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers._00_Base
             _testOutputHelper = testOutputHelper;
             Config = fixture.Config;
         }
+
+        private TestConfiguration Config { get; }
 
         [Fact]
         public async Task Test_0_SETUP()

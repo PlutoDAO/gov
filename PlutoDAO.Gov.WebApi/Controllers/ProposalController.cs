@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using PlutoDAO.Gov.Application.Exceptions;
 using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Application.Proposals.Responses;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using PlutoDAO.Gov.WebApi.Request;
 
 namespace PlutoDAO.Gov.WebApi.Controllers
@@ -19,7 +19,7 @@ namespace PlutoDAO.Gov.WebApi.Controllers
         {
             _proposalService = proposalService;
         }
-        
+
         [HttpGet("{address}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IProposalResponse))]
         public async Task<IActionResult> Get(string address)
@@ -45,7 +45,6 @@ namespace PlutoDAO.Gov.WebApi.Controllers
             try
             {
                 return Ok(await _proposalService.GetAll());
-
             }
             catch (Exception e)
             {

@@ -7,13 +7,14 @@ namespace PlutoDAO.Gov.Test.Helpers
     {
         public static Proposal ProposalMock()
         {
-            var options = new []{
-            new Option("FOR"), new Option("AGAINST")
+            var options = new[]
+            {
+                new Option("FOR"), new Option("AGAINST")
             };
             return new Proposal(
-                "ProposalMock", 
-                "ABC", 
-                "abcdef", 
+                "ProposalMock",
+                "ABC",
+                "abcdef",
                 new DateTime(),
                 new DateTime(),
                 WhitelistedAssetHelper.GetWhitelistedAssets()
@@ -29,6 +30,7 @@ namespace PlutoDAO.Gov.Test.Helpers
         {
             return "FakeDescription";
         }
+
         public static string GetFakeCreator()
         {
             return "GAE2DCGCQX73JCSKYFU6GPMKAWTJGE5QWFY63HLL3LMVP7327OA3GCF5";
