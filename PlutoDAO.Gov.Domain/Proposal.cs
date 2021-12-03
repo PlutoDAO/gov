@@ -18,12 +18,22 @@ namespace PlutoDAO.Gov.Domain
         public Proposal(string name, string description, string creator, DateTime deadline, DateTime? created,
             IEnumerable<WhitelistedAsset> whitelistedAssets)
         {
-            Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("The proposal name field cannot or empty") : name;
-            Description = string.IsNullOrWhiteSpace(description) ? throw new ArgumentException("The proposal description field cannot or empty") : description;
-            Creator = string.IsNullOrWhiteSpace(creator) ? throw new ArgumentException("The proposal creator field cannot or empty") : creator;
-            Deadline = deadline < created ? throw new ArgumentException("The deadline cannot be before the creation date") : deadline;
+            Name = string.IsNullOrWhiteSpace(name)
+                ? throw new ArgumentException("The proposal name field cannot or empty")
+                : name;
+            Description = string.IsNullOrWhiteSpace(description)
+                ? throw new ArgumentException("The proposal description field cannot or empty")
+                : description;
+            Creator = string.IsNullOrWhiteSpace(creator)
+                ? throw new ArgumentException("The proposal creator field cannot or empty")
+                : creator;
+            Deadline = deadline < created
+                ? throw new ArgumentException("The deadline cannot be before the creation date")
+                : deadline;
             Created = created ?? DateTime.Now;
-            WhitelistedAssets = !whitelistedAssets.Any() ? throw new ArgumentException("The allowed asset list cannot be empty") : whitelistedAssets;
+            WhitelistedAssets = !whitelistedAssets.Any()
+                ? throw new ArgumentException("The allowed asset list cannot be empty")
+                : whitelistedAssets;
             _options = new[]
             {
                 new Option("FOR"), new Option("AGAINST")
@@ -32,20 +42,13 @@ namespace PlutoDAO.Gov.Domain
 
         public ValidatedVote CastVote(Vote vote)
         {
-            if (IsVoteClosed())
-            {
-                throw new DeadlinePassedException("The deadline for this proposal has passed");
-            }
+            if (IsVoteClosed()) throw new DeadlinePassedException("The deadline for this proposal has passed");
 
             if (!_options.Contains(vote.Option))
-            {
                 throw new InvalidOptionException($"The option {vote.Option.Name} is not valid in this proposal");
-            }
 
             if (!WhitelistedAssets.Any(asset => asset.Equals(vote.Asset)))
-            {
                 throw new AssetNotWhitelistedException("The selected asset is not allowed in this proposal");
-            }
 
             return new ValidatedVote(vote);
         }
@@ -63,13 +66,9 @@ namespace PlutoDAO.Gov.Domain
                 var multiplier = WhitelistedAssets.First(asset => asset.Equals(vote.Asset)).Multiplier;
                 var calculatedVote = vote.Amount * multiplier;
                 if (voteCount.ContainsKey(vote.Option))
-                {
                     voteCount[vote.Option] += calculatedVote;
-                }
                 else
-                {
                     voteCount[vote.Option] = calculatedVote;
-                }
             }
 
             return voteCount.OrderByDescending(pair => pair.Value).First().Key;

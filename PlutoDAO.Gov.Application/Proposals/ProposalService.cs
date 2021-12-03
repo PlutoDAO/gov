@@ -18,16 +18,14 @@ namespace PlutoDAO.Gov.Application.Proposals
         {
             _proposalRepository = proposalRepository;
         }
-        
+
         public async Task<IProposalResponse> FindByAddress(string address)
         {
             var proposal = await _proposalRepository.FindProposal(address);
 
             if (proposal == null)
-            {
-                throw new ProposalNotFoundException($"Could not find proposal for {address}",null,
+                throw new ProposalNotFoundException($"Could not find proposal for {address}", null,
                     "Proposal not found", "PROPOSAL_NOT_FOUND");
-            }
 
             return ProposalMapper.Map(proposal);
         }
@@ -39,7 +37,7 @@ namespace PlutoDAO.Gov.Application.Proposals
                 request.Creator,
                 DateTime.Parse(request.Deadline),
                 DateTime.Now,
-                new List<WhitelistedAsset>(request.WhitelistedAssets.Select(w => (WhitelistedAsset)w)));
+                new List<WhitelistedAsset>(request.WhitelistedAssets.Select(w => (WhitelistedAsset) w)));
             await _proposalRepository.SaveProposal(proposal);
         }
 

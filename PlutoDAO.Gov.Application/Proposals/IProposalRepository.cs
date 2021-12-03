@@ -1,5 +1,5 @@
-using PlutoDAO.Gov.Domain;
 using System.Threading.Tasks;
+using PlutoDAO.Gov.Domain;
 
 namespace PlutoDAO.Gov.Application.Proposals
 {

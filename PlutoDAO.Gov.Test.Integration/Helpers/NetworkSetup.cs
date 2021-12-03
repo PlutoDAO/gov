@@ -14,11 +14,12 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         {
             StellarHelper.Server = server;
             StellarHelper.MasterAccount = KeyPair.FromSecretSeed(configuration.MasterAccountPrivate);
-            
+
             await CreatePlutoDAOAccounts(configuration);
 
             PrintConfigurationValues(
-                new[] {
+                new[]
+                {
                     configuration.PlutoDAOSenderKeyPair,
                     configuration.PlutoDAOReceiverKeyPair
                 },
@@ -30,7 +31,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
                 configuration.BaseConfigFile
             );
         }
-        
+
         private static async Task CreatePlutoDAOAccounts(TestConfiguration configuration)
         {
             // PLUTODAO SENDER
@@ -40,7 +41,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             );
             configuration.PlutoDAOSenderPublic = configuration.PlutoDAOSenderKeyPair.AccountId;
             configuration.PlutoDAOSenderPrivate = configuration.PlutoDAOSenderKeyPair.SecretSeed;
-            
+
             // PLUTODAO RECEIVER
             configuration.PlutoDAOReceiverKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
                 TestConfiguration.PlutoDAOReceiverConfigKey,
@@ -49,7 +50,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             configuration.PlutoDAOReceiverPublic = configuration.PlutoDAOReceiverKeyPair.AccountId;
             configuration.PlutoDAOReceiverPrivate = configuration.PlutoDAOReceiverKeyPair.SecretSeed;
         }
-        
+
         private static void PrintConfigurationValues(
             IReadOnlyCollection<KeyPair> accountKeyPairs,
             string[] descriptions,
