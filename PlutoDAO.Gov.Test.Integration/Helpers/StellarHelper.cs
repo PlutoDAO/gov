@@ -8,7 +8,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
     {
         public static KeyPair MasterAccount { get; set; } = null!;
         public static Server Server { get; set; } = null!;
-        
+
         public static async Task AddXlmFunds(KeyPair destinationKeyPair)
         {
             var fundAccountOp = new PaymentOperation.Builder(destinationKeyPair, new AssetTypeNative(), "10000")
@@ -20,7 +20,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             transaction.Sign(MasterAccount);
             await Server.SubmitTransaction(transaction);
         }
-        
+
         private static async Task FundAccountWithXlm(string address, string env)
         {
             if (env == "STAGING")
@@ -43,7 +43,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
 
             Console.WriteLine($"Account {address} funded successfully.");
         }
-        
+
         public static async Task<KeyPair> GetOrCreateAccountKeyPair(
             string key,
             string description,

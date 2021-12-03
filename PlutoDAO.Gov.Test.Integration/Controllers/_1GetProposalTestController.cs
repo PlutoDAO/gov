@@ -24,20 +24,19 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Config = fixture.Config;
             _testOutputHelper = testOutputHelper;
         }
-        
+
         private TestConfiguration Config { get; }
 
         [Fact]
         public async Task Test_00_Get_Proposal()
         {
             var httpClient = _factory.CreateClient();
-            var proposal = await PlutoDAOHelper.GetProposalByAddress(httpClient,"1");
-            
-            Assert.Equal("name",proposal.Name);
-            Assert.Equal("description",proposal.Description);
-            Assert.Equal("creator",proposal.Creator);
+            var proposal = await PlutoDAOHelper.GetProposalByAddress(httpClient, "1");
+
+            Assert.Equal("name", proposal.Name);
+            Assert.Equal("description", proposal.Description);
+            Assert.Equal("creator", proposal.Creator);
             Assert.True(proposal.WhitelistedAssets.Any());
         }
-        
     }
 }

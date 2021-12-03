@@ -12,7 +12,7 @@ namespace PlutoDAO.Gov.Test.Domain
         {
             var plt = AssetHelper.GetPlt();
             var vote = new Vote("FakeVoter", new Option("FOR"), plt, 1);
-            
+
             Assert.Equal("FakeVoter", vote.Voter);
             Assert.Equal("FOR", vote.Option.Name);
             Assert.Equal(plt, vote.Asset);
