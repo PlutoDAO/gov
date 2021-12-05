@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Domain;
 using stellar_dotnet_sdk;
+using stellar_dotnet_sdk.responses.operations;
 using Asset = stellar_dotnet_sdk.Asset;
 using DomainAsset = PlutoDAO.Gov.Domain.Asset;
 
@@ -129,82 +128,58 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
         public async Task<Proposal[]> GetProposals()
         {
-            const int recordsPerSearch = 200;
-            var recordsFound = recordsPerSearch;
+            const decimal stellarPrecision = 10000000;
             IList<object> transactionHashesAll = new List<object>();
             IEnumerable<object> transactionHashesUnique = null;
-            IEnumerable<Payment> paymentsForOneTransaction = new List<Payment>();
-            JObject jsonResponse;
             var proposalReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey);
             IEnumerable<DecodedProposal> decodedProposals = new List<DecodedProposal>();
-            var assetCode = "PROPCOIN1";
-
-            var url =
-                $"{Environment.GetEnvironmentVariable("HORIZON_URL")}accounts/{proposalReceiverKeyPair.AccountId}/payments?limit={recordsPerSearch}";
-
+            const string assetCode = "PROPCOIN1";
             IList<Payment> retrievedPayments = new List<Payment>();
 
-            while (recordsFound == recordsPerSearch)
-            {
-                IEnumerable<Record> records;
-                try
+            var response =
+                await _server.Payments.ForAccount(proposalReceiverKeyPair.AccountId).Limit(200).Execute();
+            var paymentRecords = response.Records.OfType<PaymentOperationResponse>()
+                .Where(payment => payment.TransactionSuccessful).ToList();
+
+            foreach (var record in paymentRecords)
+                if (record.AssetCode == assetCode && record.To == proposalReceiverKeyPair.AccountId)
                 {
-                    var res = new WebClient().DownloadString(url);
-
-                    records = JObject.Parse(res).SelectTokens("$.._embedded.records[*]")
-                        .Select(j => JsonConvert.DeserializeObject<Record>(j.ToString()));
-                    jsonResponse = JObject.Parse(res);
+                    retrievedPayments.Add(new Payment(record.Amount, record.SourceAccount, record.TransactionHash,
+                        DateTimeOffset.Parse(record.CreatedAt).ToUnixTimeSeconds()));
+                    transactionHashesAll.Add(record.TransactionHash);
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-
-                foreach (var record in records)
-                    if (record.transaction_successful && record.asset_code == assetCode &&
-                        record.to == proposalReceiverKeyPair.AccountId)
-                    {
-                        retrievedPayments.Add(new Payment(record.amount, record.from, record.transaction_hash,
-                            DateTimeOffset.Parse(record.created_at).ToUnixTimeSeconds()));
-                        transactionHashesAll.Add(record.transaction_hash);
-                    }
-
-                recordsFound = jsonResponse["_embedded"]["records"].Count();
-                url = (string) jsonResponse["_links"]["next"]["href"];
-            }
 
             transactionHashesUnique = transactionHashesAll.Select(transactionHash => transactionHash).Distinct();
 
             // Concatenate Payments assigned to each Transaction Hash
             foreach (var uniqueTransactionHash in transactionHashesUnique.ToArray())
             {
-                paymentsForOneTransaction = retrievedPayments.Where(payment =>
-                    payment.TransactionHash == (string) uniqueTransactionHash);
+                var paymentsForOneTransaction = retrievedPayments.Where(payment =>
+                    payment.TransactionHash == (string) uniqueTransactionHash).ToList();
 
-                var paymentsLength = paymentsForOneTransaction.Count();
+                var paymentsLength = paymentsForOneTransaction.Count;
 
-                if (paymentsForOneTransaction.Count() > 2)
+                if (paymentsForOneTransaction.Count > 2)
                 {
                     var encodedDigits = "";
 
                     for (var i = 0; i < paymentsLength - 3; i++)
                         encodedDigits += new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(i).Amount,
-                                CultureInfo.InvariantCulture) * 10000000)
+                                CultureInfo.InvariantCulture) * stellarPrecision)
                             .ToString()
                             .PadLeft(16, '0');
 
                     var lastPaymentAmount =
                         new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 3).Amount,
-                                CultureInfo.InvariantCulture) * 10000000)
+                                CultureInfo.InvariantCulture) * stellarPrecision)
                             .ToString();
                     var lastPaymentDigits =
                         (int) (decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 2).Amount,
-                            CultureInfo.InvariantCulture) * 10000000);
+                            CultureInfo.InvariantCulture) * stellarPrecision);
                     encodedDigits += lastPaymentAmount.PadLeft(lastPaymentDigits, '0');
-                    var finaldecodedProposals = HexToString(DecimalToHex(encodedDigits));
+                    var finalDecodedProposals = HexToString(DecimalToHex(encodedDigits));
                     decodedProposals = decodedProposals.Append(new DecodedProposal(
-                        paymentsForOneTransaction.ElementAt(0).From, finaldecodedProposals,
+                        paymentsForOneTransaction.ElementAt(0).From, finalDecodedProposals,
                         paymentsForOneTransaction.ElementAt(0).Timestamp));
                 }
             }
@@ -239,17 +214,6 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             return Encoding.ASCII.GetString(raw);
         }
 
-        private class Record
-        {
-            public string amount { get; set; }
-            public string asset_code { get; set; }
-            public string created_at { get; set; }
-            public string from { get; set; }
-            public string to { get; set; }
-            public string transaction_hash { get; set; }
-            public bool transaction_successful { get; set; }
-        }
-
         private class Payment
         {
             public readonly string Amount;
@@ -269,8 +233,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         private class DecodedProposal
         {
             public readonly string Content;
-            public string From;
             public readonly long Timestamp;
+            public string From;
 
             public DecodedProposal(string from, string content, long timestamp)
             {
