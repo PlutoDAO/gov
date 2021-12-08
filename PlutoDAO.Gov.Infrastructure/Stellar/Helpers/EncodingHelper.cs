@@ -15,7 +15,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
         private const decimal StellarPrecision = 10000000;
         public const long MaxTokens = 100000000000;
 
-        public static (IList<decimal>, decimal) Encode(string serializedProposal)
+        public static EncodedProposalPayment Encode(string serializedProposal)
         {
             IList<decimal> extraPayments = new List<decimal>();
             decimal encodedDataPayment;
@@ -45,7 +45,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             totalPayments += encodedDataPayment;
             var excessTokens = MaxTokens - totalPayments;
 
-            return (extraPayments, excessTokens);
+            return new EncodedProposalPayment(extraPayments, excessTokens);
         }
 
         public static Proposal[] Decode(IList<PaymentOperationResponse> retrievedRecords,

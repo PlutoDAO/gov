@@ -48,7 +48,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize
             });
 
-            var (extraPayments, excessTokens) = EncodingHelper.Encode(serializedProposal);
+            var encodedProposalPayments = EncodingHelper.Encode(serializedProposal);
 
             var proposalSenderKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.SenderPrivateKey);
             var proposalReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey);
@@ -66,7 +66,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                     .SetSourceAccount(receiver).Build();
             txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp);
 
-            foreach (var payment in extraPayments)
+            foreach (var payment in encodedProposalPayments.EncodedProposalMicropayments)
             {
                 var encodedTextPaymentOp = new PaymentOperation.Builder(
                         receiver,
@@ -79,7 +79,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             }
 
             txBuilder.AddOperation(new PaymentOperation.Builder(receiver, asset,
-                excessTokens.ToString(CultureInfo.CreateSpecificCulture("en-us"))).Build());
+                encodedProposalPayments.ExcessTokens.ToString(CultureInfo.CreateSpecificCulture("en-us"))).Build());
 
             var tx = txBuilder.Build();
             tx.Sign(proposalSenderKeyPair);
