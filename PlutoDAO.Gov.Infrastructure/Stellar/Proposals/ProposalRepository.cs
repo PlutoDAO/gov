@@ -62,8 +62,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 .SetSourceAccount(senderAccount.KeyPair).Build();
             var paymentOp =
                 new PaymentOperation.Builder(proposalSenderKeyPair, asset, EncodingHelper.MaxTokens.ToString())
-            txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp);
                     .SetSourceAccount(proposalReceiverKeyPair).Build();
+            txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp);
 
             foreach (var payment in encodedProposalPayments.EncodedProposalMicropayments)
             {
