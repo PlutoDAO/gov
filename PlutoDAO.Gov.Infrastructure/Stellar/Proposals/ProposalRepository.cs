@@ -54,7 +54,6 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var proposalReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey);
             var senderAccountResponse = await _server.Accounts.Account(proposalSenderKeyPair.AccountId);
             var senderAccount = new Account(proposalSenderKeyPair.AccountId, senderAccountResponse.SequenceNumber);
-            var receiver = KeyPair.FromAccountId(proposalReceiverKeyPair.AccountId);
 
             var txBuilder = new TransactionBuilder(senderAccount);
             var asset = Asset.CreateNonNativeAsset(AssetCode, proposalReceiverKeyPair.AccountId);
@@ -63,13 +62,13 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 .SetSourceAccount(senderAccount.KeyPair).Build();
             var paymentOp =
                 new PaymentOperation.Builder(proposalSenderKeyPair, asset, EncodingHelper.MaxTokens.ToString())
-                    .SetSourceAccount(receiver).Build();
             txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp);
+                    .SetSourceAccount(proposalReceiverKeyPair).Build();
 
             foreach (var payment in encodedProposalPayments.EncodedProposalMicropayments)
             {
                 var encodedTextPaymentOp = new PaymentOperation.Builder(
-                        receiver,
+                        proposalReceiverKeyPair,
                         asset,
                         payment.ToString(CultureInfo.CreateSpecificCulture("en-us"))
                     )
@@ -78,7 +77,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 txBuilder.AddOperation(encodedTextPaymentOp);
             }
 
-            txBuilder.AddOperation(new PaymentOperation.Builder(receiver, asset,
+            txBuilder.AddOperation(new PaymentOperation.Builder(proposalReceiverKeyPair, asset,
                 encodedProposalPayments.ExcessTokens.ToString(CultureInfo.CreateSpecificCulture("en-us"))).Build());
 
             var tx = txBuilder.Build();
