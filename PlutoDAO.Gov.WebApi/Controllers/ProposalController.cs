@@ -38,6 +38,20 @@ namespace PlutoDAO.Gov.WebApi.Controllers
             }
         }
 
+        [HttpGet("list")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IProposalIdentifier[]))]
+        public async Task<IActionResult> GetList()
+        {
+            try
+            {
+                return Ok(await _proposalService.GetList());
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message);
+            }
+        }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> GetAll()
