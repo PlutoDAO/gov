@@ -15,10 +15,11 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             return JsonConvert.DeserializeObject<ProposalResponse>(content);
         }
 
-        public static async Task SaveProposal(HttpClient client, TestConfiguration config, string requestContent)
+        public static async Task<HttpResponseMessage> SaveProposal(HttpClient client, TestConfiguration config,
+            string requestContent)
         {
             var data = new StringContent(requestContent, Encoding.UTF8, "application/json");
-            await client.PostAsync("proposal", data);
+            return await client.PostAsync("proposal", data);
         }
 
         public static async Task<ProposalResponse[]> GetProposals(HttpClient client, TestConfiguration config)
@@ -26,6 +27,13 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             var response = await client.GetAsync("proposal");
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ProposalResponse[]>(content);
+        }
+
+        public static async Task<ProposalIdentifier[]> GetList(HttpClient client, TestConfiguration config)
+        {
+            var response = await client.GetAsync("proposal/list");
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ProposalIdentifier[]>(content);
         }
     }
 }
