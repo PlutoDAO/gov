@@ -12,8 +12,9 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
 {
     public class EncodingHelper
     {
-        private const decimal StellarPrecision = 10000000;
+        private const decimal StellarPrecision = 10000000M;
         public const long MaxTokens = 100000000000;
+        public const int MemoTextMaximumCharacters = 28;
 
         public static EncodedProposalPayment Encode(string serializedProposal)
         {
@@ -28,7 +29,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             for (var i = 0; i < extraDigits.Length; i += 16)
             {
                 var encodedDataDecimalSection =
-                    decimal.Parse(extraDigits.Substring(i, extraDigits.Length - i > 16 ? 16 : extraDigits.Length - i));
+                    decimal.Parse(extraDigits.Substring(i, extraDigits.Length - i > 16 ? 16 : extraDigits.Length - i),
+                        CultureInfo.InvariantCulture);
                 encodedDataPayment = encodedDataDecimalSection / StellarPrecision;
 
                 if (encodedDataPayment == 0) encodedDataPayment = 1000000000;

@@ -43,6 +43,9 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
         public async Task SaveProposal(Proposal proposal)
         {
+            if (proposal.Name.Length > EncodingHelper.MemoTextMaximumCharacters)
+                throw new ArgumentOutOfRangeException("The proposal name cannot exceed 28 characters");
+
             var serializedProposal = JsonConvert.SerializeObject(proposal, new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize
@@ -63,7 +66,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var paymentOp =
                 new PaymentOperation.Builder(proposalSenderKeyPair, asset, EncodingHelper.MaxTokens.ToString())
                     .SetSourceAccount(proposalReceiverKeyPair).Build();
-            txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp);
+            txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp).AddMemo(new MemoText(proposal.Name));
 
             foreach (var payment in encodedProposalPayments.EncodedProposalMicropayments)
             {
