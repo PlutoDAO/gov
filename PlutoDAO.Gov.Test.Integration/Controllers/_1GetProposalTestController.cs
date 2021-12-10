@@ -38,5 +38,27 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("creator", proposal.Creator);
             Assert.True(proposal.WhitelistedAssets.Any());
         }
+
+        [Fact]
+        public async Task Test_01_Get_Proposal_Name_List()
+        {
+            var request2Content =
+                $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
+                    Config.PlutoDAOReceiverPublic
+                }""}}, ""multiplier"": ""1""}}]}}";
+
+            var request3Content =
+                $@"{{""name"": ""Proposal3NameTest"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
+                    Config.PlutoDAOReceiverPublic
+                }""}}, ""multiplier"": ""1""}}]}}";
+            var httpClient = _factory.CreateClient();
+            await PlutoDAOHelper.SaveProposal(httpClient, Config, request2Content);
+            await PlutoDAOHelper.SaveProposal(httpClient, Config, request3Content);
+
+            var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
+            Assert.Equal(3, proposalList.Length);
+            Assert.Equal("Proposal2NameTest", proposalList[1].Name);
+            Assert.Equal("Proposal3NameTest", proposalList[2].Name);
+        }
     }
 }
