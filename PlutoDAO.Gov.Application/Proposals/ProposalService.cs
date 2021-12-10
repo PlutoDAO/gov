@@ -46,5 +46,10 @@ namespace PlutoDAO.Gov.Application.Proposals
             var proposals = await _proposalRepository.GetProposals();
             return proposals.Select(ProposalMapper.Map).ToArray();
         }
+
+        public async Task<IProposalIdentifier[]> GetList()
+        {
+            return await _proposalRepository.GetProposalList();
+        }
     }
 }
