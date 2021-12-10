@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PlutoDAO.Gov.Application.Proposals;
+using PlutoDAO.Gov.Application.Proposals.Responses;
 using PlutoDAO.Gov.Domain;
 using PlutoDAO.Gov.Infrastructure.Stellar.Helpers;
 using stellar_dotnet_sdk;
@@ -118,6 +119,33 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 }
 
             return EncodingHelper.Decode(retrievedRecords, transactionHashesAll);
+        }
+
+        public async Task<ProposalIdentifier[]> GetProposalList()
+        {
+            IList<ProposalIdentifier> proposalList = new List<ProposalIdentifier>();
+            var proposalReceiverPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey).AccountId;
+            var proposalSenderPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.SenderPrivateKey).AccountId;
+
+            var response =
+                await _server.Transactions.ForAccount(proposalReceiverPublicKey).Limit(200).Execute();
+            var transactionRecords = response.Records
+                .Where(transaction => transaction.SourceAccount == proposalSenderPublicKey);
+
+            foreach (var record in transactionRecords)
+                if (proposalList.All(identifier => identifier.Name != record.MemoValue))
+                {
+                    var assetCode = (await _server.Payments.ForTransaction(record.Hash)
+                            .Execute()).Records.OfType<PaymentOperationResponse>()
+                        .First()
+                        .AssetCode;
+
+                    proposalList.Add(new ProposalIdentifier {Id = AssetCode, Name = record.MemoValue});
+                }
+
+            return proposalList.ToArray();
         }
     }
 }
