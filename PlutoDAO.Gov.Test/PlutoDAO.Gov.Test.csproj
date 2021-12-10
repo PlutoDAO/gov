@@ -21,6 +21,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\PlutoDAO.Gov.Domain\PlutoDAO.Gov.Domain.csproj"/>
+        <ProjectReference Include="..\PlutoDAO.Gov.Infrastructure\PlutoDAO.Gov.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>
