@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PlutoDAO.Gov.Test.Integration.Fixtures;
@@ -28,19 +27,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
         private TestConfiguration Config { get; }
 
         [Fact]
-        public async Task Test_00_Get_Proposal()
-        {
-            var httpClient = _factory.CreateClient();
-            var proposal = await PlutoDAOHelper.GetProposalByAddress(httpClient, "1");
-
-            Assert.Equal("name", proposal.Name);
-            Assert.Equal("description", proposal.Description);
-            Assert.Equal("creator", proposal.Creator);
-            Assert.True(proposal.WhitelistedAssets.Any());
-        }
-
-        [Fact]
-        public async Task Test_01_Get_Proposal_Name_List()
+        public async Task Test_00_Get_Proposal_Name_List()
         {
             var request2Content =
                 $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
@@ -56,9 +43,9 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             await PlutoDAOHelper.SaveProposal(httpClient, Config, request3Content);
 
             var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
-            Assert.Equal(3, proposalList.Length);
-            Assert.Equal("Proposal2NameTest", proposalList[1].Name);
-            Assert.Equal("Proposal3NameTest", proposalList[2].Name);
+            Assert.Equal(4, proposalList.Length);
+            Assert.Equal("Proposal2NameTest", proposalList[2].Name);
+            Assert.Equal("Proposal3NameTest", proposalList[3].Name);
         }
     }
 }
