@@ -20,13 +20,13 @@ namespace PlutoDAO.Gov.WebApi.Controllers
             _proposalService = proposalService;
         }
 
-        [HttpGet("{address}")]
+        [HttpGet("{assetCode}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IProposalResponse))]
-        public async Task<IActionResult> Get(string address)
+        public async Task<IActionResult> Get(string assetCode)
         {
             try
             {
-                return Ok(await _proposalService.FindByAddress(address));
+                return Ok(await _proposalService.GetProposal(assetCode));
             }
             catch (ProposalNotFoundException e)
             {
