@@ -4,7 +4,7 @@ using stellar_dotnet_sdk;
 
 namespace PlutoDAO.Gov.Test.Integration.Helpers
 {
-    public class StellarHelper
+    public static class StellarHelper
     {
         public static KeyPair MasterAccount { get; set; } = null!;
         public static Server Server { get; set; } = null!;

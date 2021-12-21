@@ -6,7 +6,7 @@ using PlutoDAO.Gov.Application.Proposals.Responses;
 
 namespace PlutoDAO.Gov.Test.Integration.Helpers
 {
-    public class PlutoDAOHelper
+    public static class PlutoDAOHelper
     {
         public static async Task<ProposalResponse> GetProposalByAddress(HttpClient client, string proposalAddress)
         {
