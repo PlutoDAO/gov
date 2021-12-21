@@ -8,7 +8,7 @@ using stellar_dotnet_sdk;
 
 namespace PlutoDAO.Gov.Test.Integration.Helpers
 {
-    public class NetworkSetup
+    public static class NetworkSetup
     {
         public static async Task Setup(Server server, TestConfiguration configuration)
         {
