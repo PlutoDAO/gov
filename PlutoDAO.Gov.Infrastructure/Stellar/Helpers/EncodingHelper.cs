@@ -4,17 +4,16 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using Newtonsoft.Json;
-using PlutoDAO.Gov.Domain;
 using stellar_dotnet_sdk.responses.operations;
 
 namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
 {
-    public class EncodingHelper
+    public static class EncodingHelper
     {
         private const decimal StellarPrecision = 10000000M;
         public const long MaxTokens = 100000000000;
         public const int MemoTextMaximumCharacters = 28;
+        private const int MaximumFiguresPerPayment = 16;
 
         public static EncodedProposalPayment Encode(string serializedProposal)
         {
@@ -22,14 +21,16 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             decimal encodedDataPayment;
             decimal totalPayments = 0;
 
-            serializedProposal =
-                serializedProposal.Substring(0, serializedProposal.Length < 638 ? serializedProposal.Length : 638);
             var extraDigits = HexToDecimal(StringToHex(serializedProposal));
 
-            for (var i = 0; i < extraDigits.Length; i += 16)
+            for (var i = 0; i < extraDigits.Length; i += MaximumFiguresPerPayment)
             {
                 var encodedDataDecimalSection =
-                    decimal.Parse(extraDigits.Substring(i, extraDigits.Length - i > 16 ? 16 : extraDigits.Length - i),
+                    decimal.Parse(
+                        extraDigits.Substring(i,
+                            extraDigits.Length - i > MaximumFiguresPerPayment
+                                ? MaximumFiguresPerPayment
+                                : extraDigits.Length - i),
                         CultureInfo.InvariantCulture);
                 encodedDataPayment = encodedDataDecimalSection / StellarPrecision;
 
@@ -39,8 +40,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
                 totalPayments += encodedDataPayment;
             }
 
-            decimal lastSequenceDigitCount = extraDigits.Length % 16;
-            if (lastSequenceDigitCount == 0) lastSequenceDigitCount = 16;
+            decimal lastSequenceDigitCount = extraDigits.Length % MaximumFiguresPerPayment;
+            if (lastSequenceDigitCount == 0) lastSequenceDigitCount = MaximumFiguresPerPayment;
 
             encodedDataPayment = lastSequenceDigitCount / StellarPrecision;
             extraPayments.Add(encodedDataPayment);
@@ -50,12 +51,10 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             return new EncodedProposalPayment(extraPayments, excessTokens);
         }
 
-        public static Proposal[] Decode(IList<PaymentOperationResponse> retrievedRecords,
+        public static string Decode(IList<PaymentOperationResponse> retrievedRecords,
             IEnumerable<object> transactionHashesAll)
         {
-            IEnumerable<DecodedProposal> decodedProposals = new List<DecodedProposal>();
-            var encodedDigits = "";
-
+            var decodedProposal = "";
             var transactionHashesUnique = transactionHashesAll.Select(transactionHash => transactionHash).Distinct();
 
             foreach (var uniqueTransactionHash in transactionHashesUnique.ToArray())
@@ -66,11 +65,13 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
 
                 if (paymentsForOneTransaction.Count > 2)
                 {
+                    var encodedDigits = "";
+
                     for (var i = 0; i < paymentsLength - 3; i++)
                         encodedDigits += new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(i).Amount,
                                 CultureInfo.InvariantCulture) * StellarPrecision)
                             .ToString()
-                            .PadLeft(16, '0');
+                            .PadLeft(MaximumFiguresPerPayment, '0');
 
                     var lastPaymentAmount =
                         new BigInteger(decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 3).Amount,
@@ -80,17 +81,11 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
                         (int) (decimal.Parse(paymentsForOneTransaction.ElementAt(paymentsLength - 2).Amount,
                             CultureInfo.InvariantCulture) * StellarPrecision);
                     encodedDigits += lastPaymentAmount.PadLeft(lastPaymentDigits, '0');
-
-                    var finalDecodedProposals = HexToString(DecimalToHex(encodedDigits));
-
-                    decodedProposals = decodedProposals.Append(new DecodedProposal(
-                        paymentsForOneTransaction.ElementAt(0).From, finalDecodedProposals,
-                        DateTimeOffset.Parse(paymentsForOneTransaction.ElementAt(0).CreatedAt).ToUnixTimeSeconds()));
+                    decodedProposal += HexToString(DecimalToHex(encodedDigits));
                 }
             }
 
-            decodedProposals = decodedProposals.OrderByDescending(m => m.Timestamp);
-            return decodedProposals.Select(m => JsonConvert.DeserializeObject<Proposal>(m.Content)).ToArray();
+            return decodedProposal;
         }
 
         private static string DecimalToHex(string dec)
@@ -115,22 +110,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             hex = hex.Replace("-", "");
             var raw = new byte[hex.Length / 2];
             for (var i = 0; i < raw.Length; i++) raw[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
-
             return Encoding.ASCII.GetString(raw);
-        }
-
-        private class DecodedProposal
-        {
-            public readonly string Content;
-            public readonly long Timestamp;
-            public string From;
-
-            public DecodedProposal(string from, string content, long timestamp)
-            {
-                From = from;
-                Content = content;
-                Timestamp = timestamp;
-            }
         }
     }
 }
