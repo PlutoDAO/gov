@@ -6,9 +6,8 @@ namespace PlutoDAO.Gov.Application.Proposals
 {
     public interface IProposalRepository
     {
-        public Task<Proposal> FindProposal(string address);
+        public Task<Proposal> GetProposal(string assetCode);
         public Task SaveProposal(Proposal proposal);
-        public Task<Proposal[]> GetProposals();
         public Task<ProposalIdentifier[]> GetProposalList();
     }
 }
