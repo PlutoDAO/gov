@@ -52,20 +52,6 @@ namespace PlutoDAO.Gov.WebApi.Controllers
             }
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> GetAll()
-        {
-            try
-            {
-                return Ok(await _proposalService.GetAll());
-            }
-            catch (Exception e)
-            {
-                return Problem(e.Message);
-            }
-        }
-
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Save(ProposalRequest request)
