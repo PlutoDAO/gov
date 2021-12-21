@@ -19,12 +19,12 @@ namespace PlutoDAO.Gov.Application.Proposals
             _proposalRepository = proposalRepository;
         }
 
-        public async Task<IProposalResponse> FindByAddress(string address)
+        public async Task<IProposalResponse> GetProposal(string assetCode)
         {
-            var proposal = await _proposalRepository.FindProposal(address);
+            var proposal = await _proposalRepository.GetProposal(assetCode);
 
             if (proposal == null)
-                throw new ProposalNotFoundException($"Could not find proposal for {address}", null,
+                throw new ProposalNotFoundException($"Could not find proposal for {assetCode}", null,
                     "Proposal not found", "PROPOSAL_NOT_FOUND");
 
             return ProposalMapper.Map(proposal);
