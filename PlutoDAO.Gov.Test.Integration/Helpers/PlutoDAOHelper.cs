@@ -8,9 +8,9 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
 {
     public static class PlutoDAOHelper
     {
-        public static async Task<ProposalResponse> GetProposalByAddress(HttpClient client, string proposalAddress)
+        public static async Task<ProposalResponse> GetProposalByAssetCode(HttpClient client, string assetCode)
         {
-            var response = await client.GetAsync($"/proposal/{proposalAddress}");
+            var response = await client.GetAsync($"/proposal/{assetCode}");
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ProposalResponse>(content);
         }
