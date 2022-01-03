@@ -9,6 +9,7 @@ using PlutoDAO.Gov.Application.Proposals.Responses;
 using PlutoDAO.Gov.Domain;
 using PlutoDAO.Gov.Infrastructure.Stellar.Helpers;
 using stellar_dotnet_sdk;
+using stellar_dotnet_sdk.responses;
 using stellar_dotnet_sdk.responses.operations;
 using Asset = stellar_dotnet_sdk.Asset;
 
@@ -42,28 +43,33 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var senderAccount = new Account(proposalSenderKeyPair.AccountId, senderAccountResponse.SequenceNumber);
             var assetCode = await GenerateAssetCode(proposalReceiverKeyPair.AccountId, proposalSenderKeyPair.AccountId);
 
-            if (serializedProposal.Length <= maximumProposalLength)
-                await SaveProposal(serializedProposal, 
-                    proposal.Name, 
-                    assetCode, 
-                    proposalSenderKeyPair, 
-                    proposalReceiverKeyPair, 
-                    senderAccount);
-            else
-                for (var i = 0; i < serializedProposal.Length; i += maximumProposalLength)
-                {
-                    var serializedProposalSection = serializedProposal.Substring(i,
-                        serializedProposal.Length - i > maximumProposalLength
-                            ? maximumProposalLength
-                            : serializedProposal.Length - i);
-                    await SaveProposal(
-                        serializedProposalSection, 
-                        proposal.Name, 
-                        assetCode, 
-                        proposalSenderKeyPair, 
-                        proposalReceiverKeyPair, 
+            var claimClaimableBalanceResponse =
+                await ClaimClaimableBalance(senderAccount, proposalSenderKeyPair,
+                    proposal.Creator);
+
+            if (claimClaimableBalanceResponse.IsSuccess())
+                if (serializedProposal.Length <= maximumProposalLength)
+                    await SaveProposal(serializedProposal,
+                        proposal.Name,
+                        assetCode,
+                        proposalSenderKeyPair,
+                        proposalReceiverKeyPair,
                         senderAccount);
-                }
+                else
+                    for (var i = 0; i < serializedProposal.Length; i += maximumProposalLength)
+                    {
+                        var serializedProposalSection = serializedProposal.Substring(i,
+                            serializedProposal.Length - i > maximumProposalLength
+                                ? maximumProposalLength
+                                : serializedProposal.Length - i);
+                        await SaveProposal(
+                            serializedProposalSection,
+                            proposal.Name,
+                            assetCode,
+                            proposalSenderKeyPair,
+                            proposalReceiverKeyPair,
+                            senderAccount);
+                    }
         }
 
         public async Task<Proposal> GetProposal(string assetCode)
@@ -121,11 +127,11 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         }
 
         private async Task SaveProposal(
-            string serializedProposalSection, 
-            string proposalName, 
-            string assetCode, 
-            KeyPair proposalSenderKeyPair, 
-            KeyPair proposalReceiverKeyPair, 
+            string serializedProposalSection,
+            string proposalName,
+            string assetCode,
+            KeyPair proposalSenderKeyPair,
+            KeyPair proposalReceiverKeyPair,
             Account senderAccount)
         {
             var encodedProposalPayments = EncodingHelper.Encode(serializedProposalSection);
@@ -171,6 +177,22 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 );
         }
 
+        private async Task<SubmitTransactionResponse> ClaimClaimableBalance(Account proposalSender, KeyPair proposalSenderKeyPair, string proposalCreator)
+        {
+            var sponsor = KeyPair.FromAccountId(proposalCreator);
+            var claimableBalance = _server.ClaimableBalances.ForClaimant(proposalSenderKeyPair)
+                .ForAsset(new AssetTypeNative()).ForSponsor(sponsor).Execute();
+            var response = claimableBalance.Result.Records;
+            var balanceId = response.First().Id;
+
+            var claimClaimableBalanceOp = new ClaimClaimableBalanceOperation.Builder(balanceId).Build();
+            var transactionBuilder = new TransactionBuilder(proposalSender);
+            transactionBuilder.AddOperation(claimClaimableBalanceOp);
+            var tx = transactionBuilder.Build();
+            tx.Sign(proposalSenderKeyPair);
+            return await _server.SubmitTransaction(tx);
+        }
+
         private async Task<string> GenerateAssetCode(string proposalReceiverPublicKey, string proposalSenderAccount)
         {
             IList<string> assetList = new List<string>();
@@ -179,12 +201,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             while (response.Embedded.Records.Count != 0)
             {
                 foreach (var payment in response.Records.OfType<PaymentOperationResponse>())
-                {
                     if (payment.SourceAccount == proposalReceiverPublicKey && payment.AssetCode.Contains("PROP"))
-                    {
                         assetList.Add(payment.AssetCode);
-                    }
-                }
                 response = await response.NextPage();
             }
 
