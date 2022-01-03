@@ -10,7 +10,7 @@ namespace PlutoDAO.Gov.Application.WhitelistedAssets
 
         public static explicit operator WhitelistedAsset(WhitelistedAssetDto whitelistedAssetDto)
         {
-            return new((Asset) whitelistedAssetDto.Asset, whitelistedAssetDto.Multiplier);
+            return new WhitelistedAsset((Asset) whitelistedAssetDto.Asset, whitelistedAssetDto.Multiplier);
         }
     }
 }

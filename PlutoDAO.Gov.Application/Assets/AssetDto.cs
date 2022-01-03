@@ -16,7 +16,7 @@ namespace PlutoDAO.Gov.Application.Assets
 
         public static explicit operator Asset(AssetDto assetDto)
         {
-            return new(new AccountAddress(assetDto._issuer), assetDto.Code, assetDto.IsNative);
+            return new Asset(new AccountAddress(assetDto._issuer), assetDto.Code, assetDto.IsNative);
         }
     }
 }
