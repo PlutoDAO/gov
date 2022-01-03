@@ -48,28 +48,20 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                     proposal.Creator);
 
             if (claimClaimableBalanceResponse.IsSuccess())
-                if (serializedProposal.Length <= maximumProposalLength)
-                    await SaveProposal(serializedProposal,
+                for (var i = 0; i <= serializedProposal.Length; i += maximumProposalLength)
+                {
+                    var serializedProposalSection = serializedProposal.Substring(i,
+                        serializedProposal.Length - i > maximumProposalLength
+                            ? maximumProposalLength
+                            : serializedProposal.Length - i);
+                    await SaveProposal(
+                        serializedProposalSection,
                         proposal.Name,
                         assetCode,
                         proposalSenderKeyPair,
                         proposalReceiverKeyPair,
                         senderAccount);
-                else
-                    for (var i = 0; i < serializedProposal.Length; i += maximumProposalLength)
-                    {
-                        var serializedProposalSection = serializedProposal.Substring(i,
-                            serializedProposal.Length - i > maximumProposalLength
-                                ? maximumProposalLength
-                                : serializedProposal.Length - i);
-                        await SaveProposal(
-                            serializedProposalSection,
-                            proposal.Name,
-                            assetCode,
-                            proposalSenderKeyPair,
-                            proposalReceiverKeyPair,
-                            senderAccount);
-                    }
+                }
         }
 
         public async Task<Proposal> GetProposal(string assetCode)
@@ -177,13 +169,13 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 );
         }
 
-        private async Task<SubmitTransactionResponse> ClaimClaimableBalance(Account proposalSender, KeyPair proposalSenderKeyPair, string proposalCreator)
+        private async Task<SubmitTransactionResponse> ClaimClaimableBalance(Account proposalSender,
+            KeyPair proposalSenderKeyPair, string proposalCreator)
         {
             var sponsor = KeyPair.FromAccountId(proposalCreator);
-            var claimableBalance = _server.ClaimableBalances.ForClaimant(proposalSenderKeyPair)
+            var claimableBalance = await _server.ClaimableBalances.ForClaimant(proposalSenderKeyPair)
                 .ForAsset(new AssetTypeNative()).ForSponsor(sponsor).Execute();
-            var response = claimableBalance.Result.Records;
-            var balanceId = response.First().Id;
+            var balanceId = claimableBalance.Records.First().Id;
 
             var claimClaimableBalanceOp = new ClaimClaimableBalanceOperation.Builder(balanceId).Build();
             var transactionBuilder = new TransactionBuilder(proposalSender);
