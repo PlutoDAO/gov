@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using stellar_dotnet_sdk;
 
@@ -68,6 +69,37 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             Console.WriteLine($"{pair.AccountId} funded successfully with XLM");
 
             return pair;
+        }
+
+        public static async Task CreateFeesPaymentClaimableBalance(KeyPair proposalCreator, KeyPair destination)
+        {
+            var proposalCreatorAccountResponse = await Server.Accounts.Account(proposalCreator.AccountId);
+            var proposalCreatorAccount =
+                new Account(proposalCreator.AccountId, proposalCreatorAccountResponse.SequenceNumber);
+
+            var claimant = new Claimant
+            {
+                Destination = destination,
+                Predicate = ClaimPredicate.Unconditional()
+            };
+
+            var txBuilder = new TransactionBuilder(proposalCreatorAccount);
+            var claimableBalanceOp =
+                new CreateClaimableBalanceOperation.Builder(new AssetTypeNative(), "5", new[] {claimant})
+                    .SetSourceAccount(proposalCreator)
+                    .Build();
+            txBuilder.AddOperation(claimableBalanceOp);
+
+            var tx = txBuilder.Build();
+            tx.Sign(proposalCreator);
+            await Server.SubmitTransaction(tx);
+        }
+
+        public static string GetAccountXlmBalance(string publicKey)
+        {
+            return Server.Accounts
+                .Account(publicKey).Result.Balances
+                .First(balance => balance.AssetType == "native").BalanceString;
         }
     }
 }
