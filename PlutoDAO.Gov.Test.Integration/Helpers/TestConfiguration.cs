@@ -10,6 +10,8 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         private const string MasterAccountConfigKey = "MASTER_ACCOUNT";
         public const string PlutoDAOSenderConfigKey = "PLUTODAO_PROPOSAL_SENDER_ACCOUNT";
         public const string PlutoDAOReceiverConfigKey = "PLUTODAO_PROPOSAL_RECEIVER_ACCOUNT";
+        public const string ProposalCreator1ConfigKey = "TEST_PROPOSAL_CREATOR_1_ACCOUNT";
+        public const string ProposalCreator2ConfigKey = "TEST_PROPOSAL_CREATOR_2_ACCOUNT";
 
         public TestConfiguration()
         {
@@ -69,6 +71,20 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             Environment.SetEnvironmentVariable(GetPrivateConfigKey(PlutoDAOReceiverConfigKey), PlutoDAOReceiverPrivate);
             if (PlutoDAOReceiverPrivate != null)
                 PlutoDAOReceiverKeyPair = KeyPair.FromSecretSeed(PlutoDAOReceiverPrivate);
+            
+            ProposalCreator1Public = configuration.GetValue<string>(GetPublicConfigKey(ProposalCreator1ConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(ProposalCreator1ConfigKey), ProposalCreator1Public);
+            ProposalCreator1Private = configuration.GetValue<string>(GetPrivateConfigKey(ProposalCreator1ConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(ProposalCreator1ConfigKey), ProposalCreator1Private);
+            if (ProposalCreator1Private != null)
+                ProposalCreator1KeyPair = KeyPair.FromSecretSeed(ProposalCreator1Private);
+            
+            ProposalCreator2Public = configuration.GetValue<string>(GetPublicConfigKey(ProposalCreator2ConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(ProposalCreator2ConfigKey), ProposalCreator2Public);
+            ProposalCreator2Private = configuration.GetValue<string>(GetPrivateConfigKey(ProposalCreator2ConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(ProposalCreator2ConfigKey), ProposalCreator2Private);
+            if (ProposalCreator2Private != null)
+                ProposalCreator2KeyPair = KeyPair.FromSecretSeed(ProposalCreator2Private);
         }
 
         public string ConfigFile { get; }
@@ -81,6 +97,12 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         public string PlutoDAOReceiverPublic { get; set; }
         public string? PlutoDAOReceiverPrivate { get; set; }
         public KeyPair PlutoDAOReceiverKeyPair { get; set; } = null!;
+        public string ProposalCreator1Public { get; set; }
+        public string ProposalCreator1Private { get; set; }
+        public KeyPair ProposalCreator1KeyPair { get; set; } = null!;
+        public string ProposalCreator2Public { get; set; }
+        public string ProposalCreator2Private { get; set; }
+        public KeyPair ProposalCreator2KeyPair { get; set; } = null!;
         public string TestHorizonUrl { get; }
 
         private static string GetPrivateConfigKey(string baseString)
