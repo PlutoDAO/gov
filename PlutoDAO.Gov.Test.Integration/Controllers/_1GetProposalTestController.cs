@@ -29,13 +29,22 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
         [Fact]
         public async Task Test_00_Get_Proposal_Name_List()
         {
+            await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
+                Config.PlutoDAOSenderKeyPair);
+            await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator2KeyPair,
+                Config.PlutoDAOSenderKeyPair);
+
             var request2Content =
-                $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
+                $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                    Config.ProposalCreator1Public
+                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
                     Config.PlutoDAOReceiverPublic
                 }""}}, ""multiplier"": ""1""}}]}}";
 
             var request3Content =
-                $@"{{""name"": ""Proposal3NameTest"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
+                $@"{{""name"": ""Proposal3NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                    Config.ProposalCreator2Public
+                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
                     Config.PlutoDAOReceiverPublic
                 }""}}, ""multiplier"": ""1""}}]}}";
             var httpClient = _factory.CreateClient();
