@@ -33,16 +33,16 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
         public async Task Test_00_Save_Proposal()
         {
             await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
-                    Config.PlutoDAOSenderKeyPair);
+                Config.PlutoDAOSenderKeyPair);
             var requestContent =
                 $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
-                    Config.PlutoDAOReceiverPublic
-                }""}}, ""multiplier"": ""1""}}]}}";
+                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
+                    ""
+                }""}}, ""multiplier"": ""1""}}, {{""asset"": {{ ""isNative"": false, ""code"": ""PNT"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""2""}}]}}";
 
             var httpClient = _factory.CreateClient();
-            
+
             await PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent);
             var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
             var proposal = await PlutoDAOHelper.GetProposalByAssetCode(httpClient, proposalList.Last().Id);
@@ -53,18 +53,18 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
             Assert.Equal("11/19/2030 16:08:19",
                 proposal.Deadline.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
-            Assert.Equal("pUSD", whitelistedAssets[0].Asset.Code);
-            Assert.Equal(Config.PlutoDAOReceiverPublic, whitelistedAssets[0].Asset.Issuer);
+            Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
-            Assert.Equal("9994.9999900", StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("9999.9992300", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("10000.0000000", await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOSenderPublic));
         }
 
         [Fact]
         public async Task Test_01_Save_Proposal_Throws_Error_If_Name_Exceeds_28_Characters()
         {
             var requestContent =
-                $@"{{""name"": ""A proposal name that exceeds 28 characters"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
-                    Config.PlutoDAOReceiverPublic
+                $@"{{""name"": ""A proposal name that exceeds 28 characters"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
+                    ""
                 }""}}, ""multiplier"": ""1""}}]}}";
 
             var httpClient = _factory.CreateClient();
@@ -85,8 +85,10 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
 
             var requestContent = $@"{{""name"": ""Proposal"", ""description"": ""{
                 proposalDescription
-            }"", ""creator"": ""{Config.ProposalCreator1Public}"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""PROPCOIN1"", ""issuer"": ""{
-                Config.PlutoDAOReceiverPublic
+            }"", ""creator"": ""{
+                Config.ProposalCreator1Public
+            }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
+                ""
             }""}}, ""multiplier"": ""1""}}]}}";
 
             var httpClient = _factory.CreateClient();
@@ -100,10 +102,10 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
             Assert.Equal("11/19/2030 16:08:19",
                 proposal.Deadline.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
-            Assert.Equal("PROPCOIN1", whitelistedAssets[0].Asset.Code);
-            Assert.Equal(Config.PlutoDAOReceiverPublic, whitelistedAssets[0].Asset.Issuer);
+            Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
-            Assert.Equal("9989.9999800", StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("9999.9932300", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("10000.0000000", await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOSenderPublic));
         }
     }
 }
