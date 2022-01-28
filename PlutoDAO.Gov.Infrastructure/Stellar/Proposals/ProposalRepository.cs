@@ -42,12 +42,14 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var senderAccountResponse = await _server.Accounts.Account(proposalSenderKeyPair.AccountId);
             var senderAccount = new Account(proposalSenderKeyPair.AccountId, senderAccountResponse.SequenceNumber);
             var assetCode = await GenerateAssetCode(proposalReceiverKeyPair.AccountId, proposalSenderKeyPair.AccountId);
+            var proposalSenderInitialXlmBalance = await GetAccountXlmBalance(proposalSenderKeyPair.AccountId);
 
             var claimClaimableBalanceResponse =
                 await ClaimClaimableBalance(senderAccount, proposalSenderKeyPair,
                     proposal.Creator);
 
             if (claimClaimableBalanceResponse.IsSuccess())
+            {
                 for (var i = 0; i <= serializedProposal.Length; i += maximumProposalLength)
                 {
                     var serializedProposalSection = serializedProposal.Substring(i,
@@ -62,23 +64,29 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                         proposalReceiverKeyPair,
                         senderAccount);
                 }
+
+                await PayBackExceedingFunds(proposalSenderInitialXlmBalance, senderAccount, proposalSenderKeyPair,
+                    proposal.Creator);
+            }
         }
 
         public async Task<Proposal> GetProposal(string assetCode)
         {
             IList<object> transactionHashesAll = new List<object>();
-            var proposalReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey);
+            var proposalReceiverPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey).AccountId;
             IList<PaymentOperationResponse> retrievedRecords = new List<PaymentOperationResponse>();
 
             var response =
-                await _server.Payments.ForAccount(proposalReceiverKeyPair.AccountId).Limit(200).Execute();
+                await _server.Payments.ForAccount(proposalReceiverPublicKey).Limit(200).Execute();
             while (response.Embedded.Records.Count != 0)
             {
                 var paymentRecords = response.Records.OfType<PaymentOperationResponse>()
                     .Where(payment => payment.TransactionSuccessful).ToList();
 
                 foreach (var record in paymentRecords)
-                    if (record.AssetCode == assetCode && record.To == proposalReceiverKeyPair.AccountId)
+                    if (record.AssetCode == assetCode && record.To == proposalReceiverPublicKey &&
+                        record.AssetIssuer == proposalReceiverPublicKey)
                     {
                         retrievedRecords.Add(record);
                         transactionHashesAll.Add(record.TransactionHash);
@@ -185,11 +193,11 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             return await _server.SubmitTransaction(tx);
         }
 
-        private async Task<string> GenerateAssetCode(string proposalReceiverPublicKey, string proposalSenderAccount)
+        private async Task<string> GenerateAssetCode(string proposalReceiverPublicKey, string proposalSenderPublicKey)
         {
             IList<string> assetList = new List<string>();
             var response =
-                await _server.Payments.ForAccount(proposalSenderAccount).Limit(200).Execute();
+                await _server.Payments.ForAccount(proposalSenderPublicKey).Limit(200).Execute();
             while (response.Embedded.Records.Count != 0)
             {
                 foreach (var payment in response.Records.OfType<PaymentOperationResponse>())
@@ -200,6 +208,33 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
             var uniqueAssetCount = assetList.Distinct().Count();
             return $"PROP{uniqueAssetCount + 1}";
+        }
+
+        private async Task PayBackExceedingFunds(decimal initialXlmBalance, Account source, KeyPair sourceKeyPair,
+            string destination)
+        {
+            var proposalSenderFinalXlmBalance =
+                await GetAccountXlmBalance(source.AccountId);
+            var returnFundsFee = 0.00001M;
+            var exceedingFunds = proposalSenderFinalXlmBalance - initialXlmBalance - returnFundsFee;
+
+            var destinationKeyPair = KeyPair.FromAccountId(destination);
+            var txBuilder = new TransactionBuilder(source);
+            var paymentOp = new PaymentOperation.Builder(destinationKeyPair, new AssetTypeNative(),
+                Convert.ToString(exceedingFunds, CultureInfo.InvariantCulture)).Build();
+            txBuilder.AddOperation(paymentOp);
+            var tx = txBuilder.Build();
+            tx.Sign(sourceKeyPair);
+            await _server.SubmitTransaction(tx);
+        }
+
+        private async Task<decimal> GetAccountXlmBalance(string publicKey)
+        {
+            var account = await _server.Accounts
+                .Account(publicKey);
+            var balance = account.Balances
+                .First(balance => balance.AssetType == "native").BalanceString;
+            return Convert.ToDecimal(balance, CultureInfo.InvariantCulture);
         }
     }
 }
