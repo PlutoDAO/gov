@@ -95,11 +95,10 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             await Server.SubmitTransaction(tx);
         }
 
-        public static string GetAccountXlmBalance(string publicKey)
+        public static async Task<string> GetAccountXlmBalance(string publicKey)
         {
-            return Server.Accounts
-                .Account(publicKey).Result.Balances
-                .First(balance => balance.AssetType == "native").BalanceString;
+            var accountResponse = await Server.Accounts.Account(publicKey);
+            return accountResponse.Balances.First(balance => balance.AssetType == "native").BalanceString;
         }
     }
 }
