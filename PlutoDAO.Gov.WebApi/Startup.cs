@@ -47,13 +47,6 @@ namespace PlutoDAO.Gov.WebApi
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlutoDAO.Gov.WebApi v1"));
-            }
-
-            if (env.IsDevelopment())
-            {
                 Network.Use(new Network(Environment.GetEnvironmentVariable("HORIZON_NETWORK_PASSPHRASE")));
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
