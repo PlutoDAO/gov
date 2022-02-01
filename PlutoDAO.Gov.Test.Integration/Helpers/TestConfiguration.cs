@@ -10,8 +10,10 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         private const string MasterAccountConfigKey = "MASTER_ACCOUNT";
         public const string PlutoDAOSenderConfigKey = "PLUTODAO_PROPOSAL_SENDER_ACCOUNT";
         public const string PlutoDAOReceiverConfigKey = "PLUTODAO_PROPOSAL_RECEIVER_ACCOUNT";
+        public const string PlutoDAOEscrowConfigKey = "PLUTODAO_ESCROW_ACCOUNT";
         public const string ProposalCreator1ConfigKey = "TEST_PROPOSAL_CREATOR_1_ACCOUNT";
         public const string ProposalCreator2ConfigKey = "TEST_PROPOSAL_CREATOR_2_ACCOUNT";
+        public const string VoterConfigKey = "TEST_VOTER_ACCOUNT";
 
         public TestConfiguration()
         {
@@ -85,6 +87,20 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             Environment.SetEnvironmentVariable(GetPrivateConfigKey(ProposalCreator2ConfigKey), ProposalCreator2Private);
             if (ProposalCreator2Private != null)
                 ProposalCreator2KeyPair = KeyPair.FromSecretSeed(ProposalCreator2Private);
+            
+            PlutoDAOEscrowPublic = configuration.GetValue<string>(GetPublicConfigKey(PlutoDAOEscrowConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(PlutoDAOEscrowConfigKey), PlutoDAOEscrowPublic);
+            PlutoDAOEscrowPrivate = configuration.GetValue<string>(GetPrivateConfigKey(PlutoDAOEscrowConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(PlutoDAOEscrowConfigKey), PlutoDAOEscrowPrivate);
+            if (PlutoDAOEscrowPrivate != null)
+                PlutoDAOEscrowKeyPair = KeyPair.FromSecretSeed(PlutoDAOEscrowPrivate);
+            
+            VoterPublic = configuration.GetValue<string>(GetPublicConfigKey(VoterConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(VoterConfigKey), VoterPublic);
+            VoterPrivate = configuration.GetValue<string>(GetPrivateConfigKey(VoterConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(VoterConfigKey), VoterPrivate);
+            if (VoterPrivate != null)
+                VoterKeyPair = KeyPair.FromSecretSeed(VoterPrivate);
         }
 
         public string ConfigFile { get; }
@@ -97,12 +113,18 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         public string PlutoDAOReceiverPublic { get; set; }
         public string? PlutoDAOReceiverPrivate { get; set; }
         public KeyPair PlutoDAOReceiverKeyPair { get; set; } = null!;
+        public string PlutoDAOEscrowPublic { get; set; }
+        public string PlutoDAOEscrowPrivate { get; set; }
+        public KeyPair PlutoDAOEscrowKeyPair { get; set; } = null!;
         public string ProposalCreator1Public { get; set; }
         public string ProposalCreator1Private { get; set; }
         public KeyPair ProposalCreator1KeyPair { get; set; } = null!;
         public string ProposalCreator2Public { get; set; }
         public string ProposalCreator2Private { get; set; }
         public KeyPair ProposalCreator2KeyPair { get; set; } = null!;
+        public string VoterPublic { get; set; }
+        public string VoterPrivate { get; set; }
+        public KeyPair VoterKeyPair { get; set; } = null!;
         public string TestHorizonUrl { get; }
 
         private static string GetPrivateConfigKey(string baseString)
