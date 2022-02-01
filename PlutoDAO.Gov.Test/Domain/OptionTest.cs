@@ -2,7 +2,7 @@ using System;
 using PlutoDAO.Gov.Domain;
 using Xunit;
 
-namespace PlutoDAO.Gov.Test
+namespace PlutoDAO.Gov.Test.Domain
 {
     public class OptionTest
     {
