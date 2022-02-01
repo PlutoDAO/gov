@@ -31,8 +31,10 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers._00_Base
         {
             await StellarHelper.AddXlmFunds(Config.PlutoDAOSenderKeyPair);
             await StellarHelper.AddXlmFunds(Config.PlutoDAOReceiverKeyPair);
+            await StellarHelper.AddXlmFunds(Config.PlutoDAOEscrowKeyPair);
             await StellarHelper.AddXlmFunds(Config.ProposalCreator1KeyPair);
             await StellarHelper.AddXlmFunds(Config.ProposalCreator2KeyPair);
+            await StellarHelper.AddXlmFunds(Config.VoterKeyPair);
             Assert.True(true);
         }
     }
