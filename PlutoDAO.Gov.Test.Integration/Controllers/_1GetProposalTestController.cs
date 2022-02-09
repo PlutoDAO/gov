@@ -30,22 +30,22 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
         public async Task Test_00_Get_Proposal_Name_List()
         {
             await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
-                Config.PlutoDAOSenderKeyPair);
+                Config.PlutoDAOMicropaymentSenderKeyPair);
             await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator2KeyPair,
-                Config.PlutoDAOSenderKeyPair);
+                Config.PlutoDAOMicropaymentSenderKeyPair);
 
             var request2Content =
                 $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
                 }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
-                    Config.PlutoDAOReceiverPublic
+                    Config.PlutoDAOMicropaymentReceiverPublic
                 }""}}, ""multiplier"": ""1""}}]}}";
 
             var request3Content =
                 $@"{{""name"": ""Proposal3NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator2Public
                 }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
-                    Config.PlutoDAOReceiverPublic
+                    Config.PlutoDAOMicropaymentReceiverPublic
                 }""}}, ""multiplier"": ""1""}}]}}";
             var httpClient = _factory.CreateClient();
             await PlutoDAOHelper.SaveProposal(httpClient, Config, request2Content);

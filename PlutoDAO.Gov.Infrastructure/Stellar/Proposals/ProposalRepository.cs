@@ -37,15 +37,15 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize
             });
 
-            var proposalSenderKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.SenderPrivateKey);
-            var proposalReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey);
-            var senderAccountResponse = await _server.Accounts.Account(proposalSenderKeyPair.AccountId);
-            var senderAccount = new Account(proposalSenderKeyPair.AccountId, senderAccountResponse.SequenceNumber);
-            var assetCode = await GenerateAssetCode(proposalReceiverKeyPair.AccountId, proposalSenderKeyPair.AccountId);
-            var proposalSenderInitialXlmBalance = await GetAccountXlmBalance(proposalSenderKeyPair.AccountId);
+            var proposalMicropaymentSenderKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.MicropaymentSenderPrivateKey);
+            var proposalMicropaymentReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.MicropaymentReceiverPrivateKey);
+            var micropaymentSenderAccountResponse = await _server.Accounts.Account(proposalMicropaymentSenderKeyPair.AccountId);
+            var micropaymentSenderAccount = new Account(proposalMicropaymentSenderKeyPair.AccountId, micropaymentSenderAccountResponse.SequenceNumber);
+            var assetCode = await GenerateAssetCode(proposalMicropaymentReceiverKeyPair.AccountId, proposalMicropaymentSenderKeyPair.AccountId);
+            var proposalMicropaymentSenderInitialXlmBalance = await GetAccountXlmBalance(proposalMicropaymentSenderKeyPair.AccountId);
 
             var claimClaimableBalanceResponse =
-                await ClaimClaimableBalance(senderAccount, proposalSenderKeyPair,
+                await ClaimClaimableBalance(micropaymentSenderAccount, proposalMicropaymentSenderKeyPair,
                     proposal.Creator);
 
             if (claimClaimableBalanceResponse.IsSuccess())
@@ -60,12 +60,12 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                         serializedProposalSection,
                         proposal.Name,
                         assetCode,
-                        proposalSenderKeyPair,
-                        proposalReceiverKeyPair,
-                        senderAccount);
+                        proposalMicropaymentSenderKeyPair,
+                        proposalMicropaymentReceiverKeyPair,
+                        micropaymentSenderAccount);
                 }
 
-                await PayBackExceedingFunds(proposalSenderInitialXlmBalance, senderAccount, proposalSenderKeyPair,
+                await PayBackExceedingFunds(proposalMicropaymentSenderInitialXlmBalance, micropaymentSenderAccount, proposalMicropaymentSenderKeyPair,
                     proposal.Creator);
             }
         }
@@ -73,20 +73,20 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         public async Task<Proposal> GetProposal(string assetCode)
         {
             IList<object> transactionHashesAll = new List<object>();
-            var proposalReceiverPublicKey =
-                KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey).AccountId;
+            var proposalMicropaymentReceiverPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.MicropaymentReceiverPrivateKey).AccountId;
             IList<PaymentOperationResponse> retrievedRecords = new List<PaymentOperationResponse>();
 
             var response =
-                await _server.Payments.ForAccount(proposalReceiverPublicKey).Limit(200).Execute();
+                await _server.Payments.ForAccount(proposalMicropaymentReceiverPublicKey).Limit(200).Execute();
             while (response.Embedded.Records.Count != 0)
             {
                 var paymentRecords = response.Records.OfType<PaymentOperationResponse>()
                     .Where(payment => payment.TransactionSuccessful).ToList();
 
                 foreach (var record in paymentRecords)
-                    if (record.AssetCode == assetCode && record.To == proposalReceiverPublicKey &&
-                        record.AssetIssuer == proposalReceiverPublicKey)
+                    if (record.AssetCode == assetCode && record.To == proposalMicropaymentReceiverPublicKey &&
+                        record.AssetIssuer == proposalMicropaymentReceiverPublicKey)
                     {
                         retrievedRecords.Add(record);
                         transactionHashesAll.Add(record.TransactionHash);
@@ -102,15 +102,15 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         public async Task<ProposalIdentifier[]> GetProposalList()
         {
             IList<ProposalIdentifier> proposalList = new List<ProposalIdentifier>();
-            var proposalReceiverPublicKey =
-                KeyPair.FromSecretSeed(_systemAccountConfiguration.ReceiverPrivateKey).AccountId;
-            var proposalSenderPublicKey =
-                KeyPair.FromSecretSeed(_systemAccountConfiguration.SenderPrivateKey).AccountId;
+            var proposalMicropaymentReceiverPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.MicropaymentReceiverPrivateKey).AccountId;
+            var proposalMicropaymentSenderPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.MicropaymentSenderPrivateKey).AccountId;
 
             var response =
-                await _server.Transactions.ForAccount(proposalReceiverPublicKey).Limit(200).Execute();
+                await _server.Transactions.ForAccount(proposalMicropaymentReceiverPublicKey).Limit(200).Execute();
             var transactionRecords = response.Records
-                .Where(transaction => transaction.SourceAccount == proposalSenderPublicKey);
+                .Where(transaction => transaction.SourceAccount == proposalMicropaymentSenderPublicKey);
 
             foreach (var record in transactionRecords)
                 if (proposalList.All(identifier => identifier.Name != record.MemoValue))
@@ -130,40 +130,40 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             string serializedProposalSection,
             string proposalName,
             string assetCode,
-            KeyPair proposalSenderKeyPair,
-            KeyPair proposalReceiverKeyPair,
-            Account senderAccount)
+            KeyPair proposalMicropaymentSenderKeyPair,
+            KeyPair proposalMicropaymentReceiverKeyPair,
+            Account micropaymentSenderAccount)
         {
             var encodedProposalPayments = EncodingHelper.Encode(serializedProposalSection);
 
-            var txBuilder = new TransactionBuilder(senderAccount);
-            var asset = Asset.CreateNonNativeAsset(assetCode, proposalReceiverKeyPair.AccountId);
+            var txBuilder = new TransactionBuilder(micropaymentSenderAccount);
+            var asset = Asset.CreateNonNativeAsset(assetCode, proposalMicropaymentReceiverKeyPair.AccountId);
 
             var changeTrustLineOp = new ChangeTrustOperation.Builder(ChangeTrustAsset.Create(asset))
-                .SetSourceAccount(senderAccount.KeyPair).Build();
+                .SetSourceAccount(micropaymentSenderAccount.KeyPair).Build();
             var paymentOp =
-                new PaymentOperation.Builder(proposalSenderKeyPair, asset, EncodingHelper.MaxTokens.ToString())
-                    .SetSourceAccount(proposalReceiverKeyPair).Build();
+                new PaymentOperation.Builder(proposalMicropaymentSenderKeyPair, asset, EncodingHelper.MaxTokens.ToString())
+                    .SetSourceAccount(proposalMicropaymentReceiverKeyPair).Build();
             txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp).AddMemo(new MemoText(proposalName));
 
             foreach (var payment in encodedProposalPayments.EncodedProposalMicropayments)
             {
                 var encodedTextPaymentOp = new PaymentOperation.Builder(
-                        proposalReceiverKeyPair,
+                        proposalMicropaymentReceiverKeyPair,
                         asset,
                         payment.ToString(CultureInfo.CreateSpecificCulture("en-us"))
                     )
-                    .SetSourceAccount(senderAccount.KeyPair)
+                    .SetSourceAccount(micropaymentSenderAccount.KeyPair)
                     .Build();
                 txBuilder.AddOperation(encodedTextPaymentOp);
             }
 
-            txBuilder.AddOperation(new PaymentOperation.Builder(proposalReceiverKeyPair, asset,
+            txBuilder.AddOperation(new PaymentOperation.Builder(proposalMicropaymentReceiverKeyPair, asset,
                 encodedProposalPayments.ExcessTokens.ToString(CultureInfo.CreateSpecificCulture("en-us"))).Build());
 
             var tx = txBuilder.Build();
-            tx.Sign(proposalSenderKeyPair);
-            tx.Sign(proposalReceiverKeyPair);
+            tx.Sign(proposalMicropaymentSenderKeyPair);
+            tx.Sign(proposalMicropaymentReceiverKeyPair);
 
             var transactionResponse = await _server.SubmitTransaction(tx);
 
@@ -177,31 +177,31 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 );
         }
 
-        private async Task<SubmitTransactionResponse> ClaimClaimableBalance(Account proposalSender,
-            KeyPair proposalSenderKeyPair, string proposalCreator)
+        private async Task<SubmitTransactionResponse> ClaimClaimableBalance(Account proposalMicropaymentSender,
+            KeyPair proposalMicropaymentSenderKeyPair, string proposalCreator)
         {
             var sponsor = KeyPair.FromAccountId(proposalCreator);
-            var claimableBalance = await _server.ClaimableBalances.ForClaimant(proposalSenderKeyPair)
+            var claimableBalance = await _server.ClaimableBalances.ForClaimant(proposalMicropaymentSenderKeyPair)
                 .ForAsset(new AssetTypeNative()).ForSponsor(sponsor).Execute();
             var balanceId = claimableBalance.Records.First().Id;
 
             var claimClaimableBalanceOp = new ClaimClaimableBalanceOperation.Builder(balanceId).Build();
-            var transactionBuilder = new TransactionBuilder(proposalSender);
+            var transactionBuilder = new TransactionBuilder(proposalMicropaymentSender);
             transactionBuilder.AddOperation(claimClaimableBalanceOp);
             var tx = transactionBuilder.Build();
-            tx.Sign(proposalSenderKeyPair);
+            tx.Sign(proposalMicropaymentSenderKeyPair);
             return await _server.SubmitTransaction(tx);
         }
 
-        private async Task<string> GenerateAssetCode(string proposalReceiverPublicKey, string proposalSenderPublicKey)
+        private async Task<string> GenerateAssetCode(string proposalMicropaymentReceiverPublicKey, string proposalMicropaymentSenderPublicKey)
         {
             IList<string> assetList = new List<string>();
             var response =
-                await _server.Payments.ForAccount(proposalSenderPublicKey).Limit(200).Execute();
+                await _server.Payments.ForAccount(proposalMicropaymentSenderPublicKey).Limit(200).Execute();
             while (response.Embedded.Records.Count != 0)
             {
                 foreach (var payment in response.Records.OfType<PaymentOperationResponse>())
-                    if (payment.SourceAccount == proposalReceiverPublicKey && payment.AssetCode.Contains("PROP"))
+                    if (payment.SourceAccount == proposalMicropaymentReceiverPublicKey && payment.AssetCode.Contains("PROP"))
                         assetList.Add(payment.AssetCode);
                 response = await response.NextPage();
             }
@@ -213,10 +213,10 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         private async Task PayBackExceedingFunds(decimal initialXlmBalance, Account source, KeyPair sourceKeyPair,
             string destination)
         {
-            var proposalSenderFinalXlmBalance =
+            var proposalMicropaymentSenderFinalXlmBalance =
                 await GetAccountXlmBalance(source.AccountId);
             var returnFundsFee = 0.00001M;
-            var exceedingFunds = proposalSenderFinalXlmBalance - initialXlmBalance - returnFundsFee;
+            var exceedingFunds = proposalMicropaymentSenderFinalXlmBalance - initialXlmBalance - returnFundsFee;
 
             var destinationKeyPair = KeyPair.FromAccountId(destination);
             var txBuilder = new TransactionBuilder(source);

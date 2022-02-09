@@ -27,10 +27,10 @@ namespace PlutoDAO.Gov.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped(_ => new SystemAccountConfiguration(
-                Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_SENDER_ACCOUNT_PRIVATE_KEY") ??
-                throw new ApplicationException("PLUTODAO_PROPOSAL_SENDER_ACCOUNT_PRIVATE_KEY not set"),
-                Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_RECEIVER_ACCOUNT_PRIVATE_KEY") ??
-                throw new ApplicationException("PLUTODAO_PROPOSAL_RECEIVER_ACCOUNT_PRIVATE_KEY not set"),
+                Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_MICROPAYMENT_SENDER_ACCOUNT_PRIVATE_KEY") ??
+                throw new ApplicationException("PLUTODAO_PROPOSAL_MICROPAYMENT_SENDER_ACCOUNT_PRIVATE_KEY not set"),
+                Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT_PRIVATE_KEY") ??
+                throw new ApplicationException("PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT_PRIVATE_KEY not set"),
                 Environment.GetEnvironmentVariable("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY") ??
                 throw new ApplicationException("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY not set")));
 
