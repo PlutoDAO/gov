@@ -10,6 +10,10 @@ namespace PlutoDAO.Gov.Application.Options
         {
             return new Option(option.Name);
         }
+
+        public static explicit operator OptionDto(Option option)
+        {
+            return new OptionDto{Name = option.Name};
+        }
     }
-    
 }
