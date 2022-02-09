@@ -25,7 +25,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Votes
             return voteTransaction.ToUnsignedEnvelopeXdrBase64();
         }
 
-        public async Task Vote(ValidatedVote validatedVote, Proposal proposal, string proposalId, string voterPrivateKey)
+        public async Task SaveVote(ValidatedVote validatedVote, Proposal proposal, string proposalId, string voterPrivateKey)
         {
             var voterKeyPair = KeyPair.FromSecretSeed(voterPrivateKey);
             var voteTransaction = await GetVoteTransaction(validatedVote, proposal, proposalId);

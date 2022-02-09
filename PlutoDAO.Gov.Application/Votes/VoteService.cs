@@ -25,7 +25,7 @@ namespace PlutoDAO.Gov.Application.Votes
                 var vote = new Vote(request.Voter, (Option) request.Option, (Asset) request.Asset,
                     request.Amount);
                 var validatedVote = proposal.CastVote(vote);
-                await _voteRepository.Vote(validatedVote, proposal, proposalId, request.PrivateKey);
+                await _voteRepository.SaveVote(validatedVote, proposal, proposalId, request.PrivateKey);
             }
             catch (Exception e)
             {
