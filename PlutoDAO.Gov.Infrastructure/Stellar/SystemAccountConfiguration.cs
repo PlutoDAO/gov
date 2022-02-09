@@ -2,15 +2,15 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar
 {
     public class SystemAccountConfiguration
     {
-        public SystemAccountConfiguration(string senderPrivateKey, string receiverPrivateKey, string escrowPrivateKey)
+        public SystemAccountConfiguration(string micropaymentSenderPrivateKey, string micropaymentReceiverPrivateKey, string escrowPrivateKey)
         {
-            ReceiverPrivateKey = receiverPrivateKey;
-            SenderPrivateKey = senderPrivateKey;
+            MicropaymentReceiverPrivateKey = micropaymentReceiverPrivateKey;
+            MicropaymentSenderPrivateKey = micropaymentSenderPrivateKey;
             EscrowPrivateKey = escrowPrivateKey;
         }
 
-        public string SenderPrivateKey { get; }
-        public string ReceiverPrivateKey { get; }
+        public string MicropaymentSenderPrivateKey { get; }
+        public string MicropaymentReceiverPrivateKey { get; }
         public string EscrowPrivateKey { get; }
     }
 }

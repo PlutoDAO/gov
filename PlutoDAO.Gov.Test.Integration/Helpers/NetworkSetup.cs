@@ -21,8 +21,8 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             PrintConfigurationValues(
                 new[]
                 {
-                    configuration.PlutoDAOSenderKeyPair,
-                    configuration.PlutoDAOReceiverKeyPair,
+                    configuration.PlutoDAOMicropaymentSenderKeyPair,
+                    configuration.PlutoDAOMicropaymentReceiverKeyPair,
                     configuration.PlutoDAOEscrowKeyPair,
 
                     configuration.ProposalCreator1KeyPair,
@@ -31,8 +31,8 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
                 },
                 new[]
                 {
-                    TestConfiguration.PlutoDAOSenderConfigKey,
-                    TestConfiguration.PlutoDAOReceiverConfigKey,
+                    TestConfiguration.PlutoDAOMicropaymentSenderConfigKey,
+                    TestConfiguration.PlutoDAOMicropaymentReceiverConfigKey,
                     TestConfiguration.PlutoDAOEscrowConfigKey,
 
                     TestConfiguration.ProposalCreator1ConfigKey,
@@ -46,20 +46,20 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         private static async Task CreatePlutoDAOAccounts(TestConfiguration configuration)
         {
             // PLUTODAO SENDER
-            configuration.PlutoDAOSenderKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
-                TestConfiguration.PlutoDAOSenderConfigKey,
-                "Main PlutoDAO Sender Account", configuration.PlutoDAOSenderPrivate
+            configuration.PlutoDAOMicropaymentSenderKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
+                TestConfiguration.PlutoDAOMicropaymentSenderConfigKey,
+                "Main PlutoDAO Micropayment Sender Account", configuration.PlutoDAOMicropaymentSenderPrivate
             );
-            configuration.PlutoDAOSenderPublic = configuration.PlutoDAOSenderKeyPair.AccountId;
-            configuration.PlutoDAOSenderPrivate = configuration.PlutoDAOSenderKeyPair.SecretSeed;
+            configuration.PlutoDAOMicropaymentSenderPublic = configuration.PlutoDAOMicropaymentSenderKeyPair.AccountId;
+            configuration.PlutoDAOMicropaymentSenderPrivate = configuration.PlutoDAOMicropaymentSenderKeyPair.SecretSeed;
 
             // PLUTODAO RECEIVER
-            configuration.PlutoDAOReceiverKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
-                TestConfiguration.PlutoDAOReceiverConfigKey,
-                "Main PlutoDAO Receiver Account", configuration.PlutoDAOReceiverPrivate
+            configuration.PlutoDAOMicropaymentReceiverKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
+                TestConfiguration.PlutoDAOMicropaymentReceiverConfigKey,
+                "Main PlutoDAO Micropayment Receiver Account", configuration.PlutoDAOMicropaymentReceiverPrivate
             );
-            configuration.PlutoDAOReceiverPublic = configuration.PlutoDAOReceiverKeyPair.AccountId;
-            configuration.PlutoDAOReceiverPrivate = configuration.PlutoDAOReceiverKeyPair.SecretSeed;
+            configuration.PlutoDAOMicropaymentReceiverPublic = configuration.PlutoDAOMicropaymentReceiverKeyPair.AccountId;
+            configuration.PlutoDAOMicropaymentReceiverPrivate = configuration.PlutoDAOMicropaymentReceiverKeyPair.SecretSeed;
 
             // PLUTODAO ESCROW
             configuration.PlutoDAOEscrowKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(

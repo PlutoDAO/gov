@@ -8,8 +8,8 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
     public class TestConfiguration
     {
         private const string MasterAccountConfigKey = "MASTER_ACCOUNT";
-        public const string PlutoDAOSenderConfigKey = "PLUTODAO_PROPOSAL_SENDER_ACCOUNT";
-        public const string PlutoDAOReceiverConfigKey = "PLUTODAO_PROPOSAL_RECEIVER_ACCOUNT";
+        public const string PlutoDAOMicropaymentSenderConfigKey = "PLUTODAO_PROPOSAL_MICROPAYMENT_SENDER_ACCOUNT";
+        public const string PlutoDAOMicropaymentReceiverConfigKey = "PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT";
         public const string PlutoDAOEscrowConfigKey = "PLUTODAO_ESCROW_ACCOUNT";
         public const string ProposalCreator1ConfigKey = "TEST_PROPOSAL_CREATOR_1_ACCOUNT";
         public const string ProposalCreator2ConfigKey = "TEST_PROPOSAL_CREATOR_2_ACCOUNT";
@@ -60,19 +60,19 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             Environment.SetEnvironmentVariable(GetPrivateConfigKey(MasterAccountConfigKey), MasterAccountPrivate);
             KeyPair.FromSecretSeed(MasterAccountPrivate);
 
-            PlutoDAOSenderPublic = configuration.GetValue<string>(GetPublicConfigKey(PlutoDAOSenderConfigKey));
-            Environment.SetEnvironmentVariable(GetPublicConfigKey(PlutoDAOSenderConfigKey), PlutoDAOSenderPublic);
-            PlutoDAOSenderPrivate = configuration.GetValue<string>(GetPrivateConfigKey(PlutoDAOSenderConfigKey));
-            Environment.SetEnvironmentVariable(GetPrivateConfigKey(PlutoDAOSenderConfigKey), PlutoDAOSenderPrivate);
-            if (PlutoDAOSenderPrivate != null)
-                PlutoDAOSenderKeyPair = KeyPair.FromSecretSeed(PlutoDAOSenderPrivate);
+            PlutoDAOMicropaymentSenderPublic = configuration.GetValue<string>(GetPublicConfigKey(PlutoDAOMicropaymentSenderConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(PlutoDAOMicropaymentSenderConfigKey), PlutoDAOMicropaymentSenderPublic);
+            PlutoDAOMicropaymentSenderPrivate = configuration.GetValue<string>(GetPrivateConfigKey(PlutoDAOMicropaymentSenderConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(PlutoDAOMicropaymentSenderConfigKey), PlutoDAOMicropaymentSenderPrivate);
+            if (PlutoDAOMicropaymentSenderPrivate != null)
+                PlutoDAOMicropaymentSenderKeyPair = KeyPair.FromSecretSeed(PlutoDAOMicropaymentSenderPrivate);
 
-            PlutoDAOReceiverPublic = configuration.GetValue<string>(GetPublicConfigKey(PlutoDAOReceiverConfigKey));
-            Environment.SetEnvironmentVariable(GetPublicConfigKey(PlutoDAOReceiverConfigKey), PlutoDAOReceiverPublic);
-            PlutoDAOReceiverPrivate = configuration.GetValue<string>(GetPrivateConfigKey(PlutoDAOReceiverConfigKey));
-            Environment.SetEnvironmentVariable(GetPrivateConfigKey(PlutoDAOReceiverConfigKey), PlutoDAOReceiverPrivate);
-            if (PlutoDAOReceiverPrivate != null)
-                PlutoDAOReceiverKeyPair = KeyPair.FromSecretSeed(PlutoDAOReceiverPrivate);
+            PlutoDAOMicropaymentReceiverPublic = configuration.GetValue<string>(GetPublicConfigKey(PlutoDAOMicropaymentReceiverConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(PlutoDAOMicropaymentReceiverConfigKey), PlutoDAOMicropaymentReceiverPublic);
+            PlutoDAOMicropaymentReceiverPrivate = configuration.GetValue<string>(GetPrivateConfigKey(PlutoDAOMicropaymentReceiverConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(PlutoDAOMicropaymentReceiverConfigKey), PlutoDAOMicropaymentReceiverPrivate);
+            if (PlutoDAOMicropaymentReceiverPrivate != null)
+                PlutoDAOMicropaymentReceiverKeyPair = KeyPair.FromSecretSeed(PlutoDAOMicropaymentReceiverPrivate);
             
             ProposalCreator1Public = configuration.GetValue<string>(GetPublicConfigKey(ProposalCreator1ConfigKey));
             Environment.SetEnvironmentVariable(GetPublicConfigKey(ProposalCreator1ConfigKey), ProposalCreator1Public);
@@ -107,12 +107,12 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         public string BaseConfigFile { get; }
         public string MasterAccountPrivate { get; }
         private string MasterAccountPublic { get; }
-        public string PlutoDAOSenderPublic { get; set; }
-        public string? PlutoDAOSenderPrivate { get; set; }
-        public KeyPair PlutoDAOSenderKeyPair { get; set; } = null!;
-        public string PlutoDAOReceiverPublic { get; set; }
-        public string? PlutoDAOReceiverPrivate { get; set; }
-        public KeyPair PlutoDAOReceiverKeyPair { get; set; } = null!;
+        public string PlutoDAOMicropaymentSenderPublic { get; set; }
+        public string? PlutoDAOMicropaymentSenderPrivate { get; set; }
+        public KeyPair PlutoDAOMicropaymentSenderKeyPair { get; set; } = null!;
+        public string PlutoDAOMicropaymentReceiverPublic { get; set; }
+        public string? PlutoDAOMicropaymentReceiverPrivate { get; set; }
+        public KeyPair PlutoDAOMicropaymentReceiverKeyPair { get; set; } = null!;
         public string PlutoDAOEscrowPublic { get; set; }
         public string PlutoDAOEscrowPrivate { get; set; }
         public KeyPair PlutoDAOEscrowKeyPair { get; set; } = null!;

@@ -29,8 +29,8 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers._00_Base
         [Fact]
         public async Task Test_0_SETUP()
         {
-            await StellarHelper.AddXlmFunds(Config.PlutoDAOSenderKeyPair);
-            await StellarHelper.AddXlmFunds(Config.PlutoDAOReceiverKeyPair);
+            await StellarHelper.AddXlmFunds(Config.PlutoDAOMicropaymentSenderKeyPair);
+            await StellarHelper.AddXlmFunds(Config.PlutoDAOMicropaymentReceiverKeyPair);
             await StellarHelper.AddXlmFunds(Config.PlutoDAOEscrowKeyPair);
             await StellarHelper.AddXlmFunds(Config.ProposalCreator1KeyPair);
             await StellarHelper.AddXlmFunds(Config.ProposalCreator2KeyPair);

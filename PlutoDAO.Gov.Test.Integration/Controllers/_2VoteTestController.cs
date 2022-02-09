@@ -30,7 +30,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
         public async Task Test_00_Vote()
         {
             await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
-                Config.PlutoDAOSenderKeyPair);
+                Config.PlutoDAOMicropaymentSenderKeyPair);
 
             var proposalRequestContent =
                 $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
