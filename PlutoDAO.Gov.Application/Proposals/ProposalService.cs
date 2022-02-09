@@ -36,8 +36,10 @@ namespace PlutoDAO.Gov.Application.Proposals
                 request.Description,
                 request.Creator,
                 DateTime.Parse(request.Deadline),
-                DateTime.Now,
-                new List<WhitelistedAsset>(request.WhitelistedAssets.Select(w => (WhitelistedAsset) w)));
+                null,
+                new List<WhitelistedAsset>(request.WhitelistedAssets.Select(w => (WhitelistedAsset) w)),
+                null);
+
             await _proposalRepository.SaveProposal(proposal);
         }
 
