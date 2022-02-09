@@ -21,7 +21,8 @@ namespace PlutoDAO.Gov.Test.Infrastructure.Stellar.Helpers
                 ProposalHelper.GetFakeCreator(),
                 DateTime.Parse("9/12/2021 00:00:01", CultureInfo.InvariantCulture),
                 DateTime.Parse("9/12/2021 00:00:00", CultureInfo.InvariantCulture),
-                WhitelistedAssetHelper.GetWhitelistedAssets()
+                WhitelistedAssetHelper.GetWhitelistedAssets(),
+                null
             );
             var serializedProposal = JsonConvert.SerializeObject(proposal, new JsonSerializerSettings
             {
@@ -30,8 +31,8 @@ namespace PlutoDAO.Gov.Test.Infrastructure.Stellar.Helpers
 
             var encodedProposal = EncodingHelper.Encode(serializedProposal);
 
-            Assert.Equal(55227158959.0267162M, encodedProposal.ExcessTokens);
-            Assert.Equal(96, encodedProposal.EncodedProposalMicropayments.Count);
+            Assert.Equal(51409897516.0254940M, encodedProposal.ExcessTokens);
+            Assert.Equal(103, encodedProposal.EncodedProposalMicropayments.Count);
         }
 
         [Fact]
