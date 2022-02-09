@@ -7,16 +7,16 @@ namespace PlutoDAO.Gov.Domain
 {
     public class Proposal
     {
-        private readonly IEnumerable<Option> _options;
         public readonly string Creator;
         public readonly string Description;
         public readonly string Name;
         public readonly IEnumerable<WhitelistedAsset> WhitelistedAssets;
         public DateTime Created;
         public DateTime Deadline;
+        public readonly IEnumerable<Option> Options;
 
         public Proposal(string name, string description, string creator, DateTime deadline, DateTime? created,
-            IEnumerable<WhitelistedAsset> whitelistedAssets)
+            IEnumerable<WhitelistedAsset> whitelistedAssets, IEnumerable<Option>? options)
         {
             Name = string.IsNullOrWhiteSpace(name)
                 ? throw new ArgumentException("The proposal name field cannot or empty")
@@ -34,7 +34,7 @@ namespace PlutoDAO.Gov.Domain
             WhitelistedAssets = !whitelistedAssets.Any()
                 ? throw new ArgumentException("The allowed asset list cannot be empty")
                 : whitelistedAssets;
-            _options = new[]
+            Options = options ?? new[]
             {
                 new Option("FOR"), new Option("AGAINST")
             };
@@ -44,7 +44,7 @@ namespace PlutoDAO.Gov.Domain
         {
             if (IsVoteClosed()) throw new DeadlinePassedException("The deadline for this proposal has passed");
 
-            if (!_options.Contains(vote.Option))
+            if (!Options.Contains(vote.Option))
                 throw new InvalidOptionException($"The option {vote.Option.Name} is not valid in this proposal");
 
             if (!WhitelistedAssets.Any(asset => asset.Equals(vote.Asset)))
