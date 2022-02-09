@@ -5,22 +5,6 @@ namespace PlutoDAO.Gov.Test.Helpers
 {
     public static class ProposalHelper
     {
-        public static Proposal ProposalMock()
-        {
-            var options = new[]
-            {
-                new Option("FOR"), new Option("AGAINST")
-            };
-            return new Proposal(
-                "ProposalMock",
-                "ABC",
-                "abcdef",
-                new DateTime(),
-                new DateTime(),
-                WhitelistedAssetHelper.GetWhitelistedAssets()
-            );
-        }
-
         public static string GetName()
         {
             return "FakeProposal";
