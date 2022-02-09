@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using stellar_dotnet_sdk;
+using stellar_dotnet_sdk.responses;
+using Claimant = stellar_dotnet_sdk.Claimant;
 
 namespace PlutoDAO.Gov.Test.Integration.Helpers
 {
@@ -97,8 +99,33 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
 
         public static async Task<string> GetAccountXlmBalance(string publicKey)
         {
-            var accountResponse = await Server.Accounts.Account(publicKey);
-            return accountResponse.Balances.First(balance => balance.AssetType == "native").BalanceString;
+            var accounts = await Server.Accounts.Account(publicKey);
+            return accounts.Balances.First(balance => balance.AssetType == "native").BalanceString;
+        }
+
+        public static async Task<ClaimableBalanceResponse> GetClaimableBalances(string claimantPublicKey,
+            string sponsorPublicKey)
+        {
+            var sponsor = KeyPair.FromAccountId(sponsorPublicKey);
+            var claimant = KeyPair.FromAccountId(claimantPublicKey);
+            var response = await Server.ClaimableBalances.ForClaimant(claimant).ForSponsor(sponsor).Execute();
+            return response.Records.First();
+        }
+
+        public static async Task ClaimVoteFunds(string claimantSecretKey)
+        {
+            var sponsor = KeyPair.FromSecretSeed(claimantSecretKey);
+            var sponsorAccount = await Server.Accounts.Account(sponsor.AccountId);
+            var claimableBalance = await Server.ClaimableBalances.ForClaimant(sponsor)
+                .ForAsset(new AssetTypeNative()).ForSponsor(sponsor).Execute();
+            var balanceId = claimableBalance.Records.First().Id;
+            
+            var claimClaimableBalanceOp = new ClaimClaimableBalanceOperation.Builder(balanceId).Build();
+            var transactionBuilder = new TransactionBuilder(sponsorAccount);
+            transactionBuilder.AddOperation(claimClaimableBalanceOp);
+            var tx = transactionBuilder.Build();
+            tx.Sign(sponsor);
+            await Server.SubmitTransaction(tx);
         }
     }
 }

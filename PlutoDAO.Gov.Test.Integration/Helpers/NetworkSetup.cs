@@ -23,17 +23,21 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
                 {
                     configuration.PlutoDAOSenderKeyPair,
                     configuration.PlutoDAOReceiverKeyPair,
-                    
+                    configuration.PlutoDAOEscrowKeyPair,
+
                     configuration.ProposalCreator1KeyPair,
-                    configuration.ProposalCreator2KeyPair
+                    configuration.ProposalCreator2KeyPair,
+                    configuration.VoterKeyPair
                 },
                 new[]
                 {
                     TestConfiguration.PlutoDAOSenderConfigKey,
                     TestConfiguration.PlutoDAOReceiverConfigKey,
-                    
+                    TestConfiguration.PlutoDAOEscrowConfigKey,
+
                     TestConfiguration.ProposalCreator1ConfigKey,
-                    TestConfiguration.ProposalCreator2ConfigKey
+                    TestConfiguration.ProposalCreator2ConfigKey,
+                    TestConfiguration.VoterConfigKey
                 },
                 configuration.BaseConfigFile
             );
@@ -56,6 +60,13 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             );
             configuration.PlutoDAOReceiverPublic = configuration.PlutoDAOReceiverKeyPair.AccountId;
             configuration.PlutoDAOReceiverPrivate = configuration.PlutoDAOReceiverKeyPair.SecretSeed;
+
+            // PLUTODAO ESCROW
+            configuration.PlutoDAOEscrowKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
+                TestConfiguration.PlutoDAOEscrowConfigKey, "PlutoDAO escrow account",
+                configuration.PlutoDAOEscrowPrivate);
+            configuration.PlutoDAOEscrowPublic = configuration.PlutoDAOEscrowKeyPair.AccountId;
+            configuration.PlutoDAOEscrowPrivate = configuration.PlutoDAOEscrowKeyPair.SecretSeed;
         }
 
         private static async Task CreateProposalCreatorAccounts(TestConfiguration configuration)
@@ -66,13 +77,20 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
                 configuration.ProposalCreator1Private);
             configuration.ProposalCreator1Public = configuration.ProposalCreator1KeyPair.AccountId;
             configuration.ProposalCreator1Private = configuration.ProposalCreator1KeyPair.SecretSeed;
-            
+
             //PROPOSAL CREATOR 2
             configuration.ProposalCreator2KeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
                 TestConfiguration.ProposalCreator2ConfigKey, "Proposal2Creator account",
                 configuration.ProposalCreator2Private);
             configuration.ProposalCreator2Public = configuration.ProposalCreator2KeyPair.AccountId;
             configuration.ProposalCreator2Private = configuration.ProposalCreator2KeyPair.SecretSeed;
+
+            //VOTER
+            configuration.VoterKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
+                TestConfiguration.VoterConfigKey, "Voter account",
+                configuration.VoterPrivate);
+            configuration.VoterPublic = configuration.VoterKeyPair.AccountId;
+            configuration.VoterPrivate = configuration.VoterKeyPair.SecretSeed;
         }
 
         private static void PrintConfigurationValues(
