@@ -4,7 +4,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace PlutoDAO.Test.Integration.Helpers
+namespace PlutoDAO.Gov.Test.Integration.Helpers
 {
     public class AlphabeticalOrderer : ITestCaseOrderer
     {
