@@ -7,16 +7,15 @@ namespace PlutoDAO.Gov.Domain
 {
     public class Proposal
     {
-        public readonly string Creator;
-        public readonly string Description;
         public readonly string Name;
+        public readonly string Description;
+        public readonly string Creator;
         public readonly IEnumerable<WhitelistedAsset> WhitelistedAssets;
         public DateTime Created;
         public DateTime Deadline;
         public readonly IEnumerable<Option> Options;
 
-        public Proposal(string name, string description, string creator, DateTime deadline, DateTime? created,
-            IEnumerable<WhitelistedAsset> whitelistedAssets, IEnumerable<Option>? options)
+        public Proposal(string name, string description, string creator, IEnumerable<WhitelistedAsset> whitelistedAssets)
         {
             Name = string.IsNullOrWhiteSpace(name)
                 ? throw new ArgumentException("The proposal name field cannot or empty")
@@ -27,13 +26,36 @@ namespace PlutoDAO.Gov.Domain
             Creator = string.IsNullOrWhiteSpace(creator)
                 ? throw new ArgumentException("The proposal creator field cannot or empty")
                 : creator;
-            Deadline = deadline < created
-                ? throw new ArgumentException("The deadline cannot be before the creation date")
-                : deadline;
-            Created = created ?? DateTime.Now;
             WhitelistedAssets = !whitelistedAssets.Any()
                 ? throw new ArgumentException("The allowed asset list cannot be empty")
                 : whitelistedAssets;
+            Created = DateTime.Now;
+            Deadline = Created.Date.AddDays(30);
+            Options = new[]
+            {
+                new Option("FOR"), new Option("AGAINST")
+            };
+        }
+
+        public Proposal(string name, string description, string creator, IEnumerable<WhitelistedAsset> whitelistedAssets, DateTime created, DateTime deadline,
+            IEnumerable<Option>? options)
+        {
+            Name = string.IsNullOrWhiteSpace(name)
+                ? throw new ArgumentException("The proposal name field cannot or empty")
+                : name;
+            Description = string.IsNullOrWhiteSpace(description)
+                ? throw new ArgumentException("The proposal description field cannot or empty")
+                : description;
+            Creator = string.IsNullOrWhiteSpace(creator)
+                ? throw new ArgumentException("The proposal creator field cannot or empty")
+                : creator;
+            WhitelistedAssets = !whitelistedAssets.Any()
+                ? throw new ArgumentException("The allowed asset list cannot be empty")
+                : whitelistedAssets;
+            Created = created;
+            Deadline = deadline < created
+                ? throw new ArgumentException("The deadline cannot be before the creation date")
+                : deadline;
             Options = options ?? new[]
             {
                 new Option("FOR"), new Option("AGAINST")
