@@ -19,34 +19,20 @@ namespace PlutoDAO.Gov.Application.Votes
 
         public async Task Vote(IDirectVoteRequest request, string proposalId)
         {
-            try
-            {
-                var proposal = await _proposalRepository.GetProposal(proposalId);
-                var vote = new Vote(request.Voter, (Option) request.Option, (Asset) request.Asset,
-                    request.Amount);
-                var validatedVote = proposal.CastVote(vote);
-                await _voteRepository.SaveVote(validatedVote, proposal, proposalId, request.PrivateKey);
-            }
-            catch (Exception e)
-            {
-                throw new Exception();
-            }
+            var proposal = await _proposalRepository.GetProposal(proposalId);
+            var vote = new Vote(request.Voter, (Option) request.Option, (Asset) request.Asset,
+                request.Amount);
+            var validatedVote = proposal.CastVote(vote);
+            await _voteRepository.SaveVote(validatedVote, proposal, proposalId, request.PrivateKey);
         }
 
         public async Task<string> Vote(IVoteIntentRequest request, string proposalId)
         {
-            try
-            {
-                var proposal = await _proposalRepository.GetProposal(proposalId);
-                var vote = new Vote(request.Voter, (Option) request.Option, (Asset) request.Asset,
-                    request.Amount);
-                var validatedVote = proposal.CastVote(vote);
-                return await _voteRepository.GetVoteIntent(validatedVote, proposal, proposalId);
-            }
-            catch (Exception e)
-            {
-                throw new Exception();
-            }
+            var proposal = await _proposalRepository.GetProposal(proposalId);
+            var vote = new Vote(request.Voter, (Option) request.Option, (Asset) request.Asset,
+                request.Amount);
+            var validatedVote = proposal.CastVote(vote);
+            return await _voteRepository.GetVoteIntent(validatedVote, proposal, proposalId);
         }
     }
 }
