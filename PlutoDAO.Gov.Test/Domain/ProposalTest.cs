@@ -16,9 +16,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null
             );
 
@@ -43,25 +43,25 @@ namespace PlutoDAO.Gov.Test.Domain
             Assert.Throws<ArgumentException>(() => new Proposal("",
                 "FakeDescription",
                 "ProposalHelper.GetFakeCreator()",
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null));
 
             Assert.Throws<ArgumentException>(() => new Proposal("     ",
                 "FakeDescription",
                 "ProposalHelper.GetFakeCreator()",
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null));
 
             Assert.Throws<ArgumentException>(() => new Proposal(null,
                 "FakeDescription",
                 "ProposalHelper.GetFakeCreator()",
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null));
         }
 
@@ -72,9 +72,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null
             );
 
@@ -91,9 +91,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null
             );
 
@@ -107,9 +107,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null
             );
             var plt = AssetHelper.GetPlt();
@@ -126,9 +126,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Parse("2021-11-20T16:08:19.290Z"),
-                DateTime.Parse("2021-11-19T16:08:19.290"),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Parse("2021-11-19T16:08:19.290"),
+                DateTime.Parse("2021-11-20T16:08:19.290Z"),
                 null
             );
             Assert.True(proposal.IsVoteClosed());
@@ -141,9 +141,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null
             );
             var fakeAsset = AssetHelper.GetFakeAsset();
@@ -163,9 +163,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMilliseconds(10),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMilliseconds(10),
                 null
             );
 
@@ -187,9 +187,9 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetName(),
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
-                DateTime.Now.AddMinutes(1),
-                DateTime.Now,
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
+                DateTime.Now,
+                DateTime.Now.AddMinutes(1),
                 null
             );
 

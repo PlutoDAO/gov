@@ -37,7 +37,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var requestContent =
                 $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
+                }"",""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
                     ""
                 }""}}, ""multiplier"": ""1""}}, {{""asset"": {{ ""isNative"": false, ""code"": ""PNT"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""2""}}]}}";
 
@@ -51,8 +51,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("Proposal1NameTest", proposal.Name);
             Assert.Equal("A testing proposal", proposal.Description);
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
-            Assert.Equal("11/19/2030 16:08:19",
-                proposal.Deadline.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
+            Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(30));
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
             Assert.Equal("9999.9991600", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
@@ -87,7 +86,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
                 proposalDescription
             }"", ""creator"": ""{
                 Config.ProposalCreator1Public
-            }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
+            }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
                 ""
             }""}}, ""multiplier"": ""1""}}]}}";
 
@@ -100,8 +99,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("Proposal", proposal.Name);
             Assert.Equal(proposalDescription, proposal.Description);
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
-            Assert.Equal("11/19/2030 16:08:19",
-                proposal.Deadline.ToUniversalTime().ToString(CultureInfo.InvariantCulture));
+            Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(30));
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
             Assert.Equal("9999.9930500", await StellarHelper.GetAccountXlmBalance(proposal.Creator));

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PlutoDAO.Gov.Test.Integration.Fixtures;
@@ -35,27 +36,32 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var proposalRequestContent =
                 $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
+                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
                     ""
                 }""}}, ""multiplier"": ""1""}}]}}";
 
             var httpClient = _factory.CreateClient();
             await PlutoDAOHelper.SaveProposal(httpClient, Config, proposalRequestContent);
-            
+
+            var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
+            var proposal = await PlutoDAOHelper.GetProposalByAssetCode(httpClient, proposalList.Last().Id);
+
             var transaction = await PlutoDAOHelper.VoteIntent(httpClient, Config, "PROP1", "50");
             Assert.Equal("PROP1 FOR", transaction.Memo.ToXdr().Text);
 
-            await PlutoDAOHelper.VoteDirect(httpClient, Config, "PROP1","50");
+            await PlutoDAOHelper.VoteDirect(httpClient, Config, "PROP1", "50");
             Assert.Equal("9949.9999900", await StellarHelper.GetAccountXlmBalance(Config.VoterPublic));
 
-            var claimableBalanceResponse = await StellarHelper.GetClaimableBalances(Config.PlutoDAOEscrowPublic, Config.VoterPublic);
+            var claimableBalanceResponse =
+                await StellarHelper.GetClaimableBalances(Config.PlutoDAOEscrowPublic, Config.VoterPublic);
             Assert.Equal(Config.VoterPublic, claimableBalanceResponse.Sponsor);
             Assert.Equal("50.0000000", claimableBalanceResponse.Amount);
             Assert.Equal("native", claimableBalanceResponse.Asset);
             Assert.Equal(2, claimableBalanceResponse.Claimants.Length);
             Assert.Equal(Config.PlutoDAOEscrowPublic, claimableBalanceResponse.Claimants[0].Destination);
             Assert.Equal(Config.VoterPublic, claimableBalanceResponse.Claimants[1].Destination);
-            Assert.Equal("2030-11-20T16:08:19Z", claimableBalanceResponse.Claimants[1].Predicate.Not.AbsBefore);
+            Assert.Equal(proposal.Created.Date.ToUniversalTime().AddDays(31).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                claimableBalanceResponse.Claimants[1].Predicate.Not.AbsBefore);
         }
     }
 }
