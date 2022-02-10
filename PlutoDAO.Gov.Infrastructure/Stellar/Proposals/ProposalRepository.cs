@@ -94,9 +94,10 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
                 response = await response.NextPage();
             }
-
+            var settings = new JsonSerializerSettings();
+            settings.Converters.Add(new JsonConverterHelper());
             var decodedProposal = EncodingHelper.Decode(retrievedRecords, transactionHashesAll);
-            return JsonConvert.DeserializeObject<Proposal>(decodedProposal);
+            return JsonConvert.DeserializeObject<Proposal>(decodedProposal, settings);
         }
 
         public async Task<ProposalIdentifier[]> GetProposalList()
