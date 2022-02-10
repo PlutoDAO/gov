@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,10 +34,7 @@ namespace PlutoDAO.Gov.Application.Proposals
             var proposal = new Proposal(request.Name,
                 request.Description,
                 request.Creator,
-                DateTime.Parse(request.Deadline),
-                null,
-                new List<WhitelistedAsset>(request.WhitelistedAssets.Select(w => (WhitelistedAsset) w)),
-                null);
+                new List<WhitelistedAsset>(request.WhitelistedAssets.Select(w => (WhitelistedAsset) w)));
 
             await _proposalRepository.SaveProposal(proposal);
         }
