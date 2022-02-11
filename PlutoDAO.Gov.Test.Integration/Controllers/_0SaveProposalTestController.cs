@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -55,7 +54,8 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
             Assert.Equal("9999.9991600", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
-            Assert.Equal("10000.0000000", await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
+            Assert.Equal("10000.0000000",
+                await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
         }
 
         [Fact]
@@ -103,7 +103,37 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
             Assert.Equal("9999.9930500", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
-            Assert.Equal("10000.0000000", await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
+            Assert.Equal("10000.0000000",
+                await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
+        }
+
+        [Fact]
+        public async Task Test_03_Concurrently_Save_Two_Proposals()
+        {
+            var requestContent =
+                $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                    Config.ProposalCreator1Public
+                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+
+            var requestContent2 =
+                $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                    Config.ProposalCreator2Public
+                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+
+            await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
+                Config.PlutoDAOMicropaymentSenderKeyPair);
+            await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator2KeyPair,
+                Config.PlutoDAOMicropaymentSenderKeyPair);
+
+            var httpClient = _factory.CreateClient();
+
+            await Task.WhenAll(
+                PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent),
+                PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent2)
+            );
+
+            var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
+            Assert.Equal(2, proposalList.Length);
         }
     }
 }
