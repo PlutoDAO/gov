@@ -69,7 +69,26 @@ Or simply `dotnet run`
 3) Execute `dotnet test`
 
 ## Considerations when implementing a frontend
-The mechanism for saving proposals incur in fee costs that have to be paid by the proposal creator user. So keep in mind that before sending the proposal to the backend write a claimable balance from the proposal creator user to the _proposal micropayment sender_ account with enough XLM to afford those fee costs, after the proposal has been saved the exceeding amount of XLM will be paid back to the proposal creator user.
+The mechanism for saving proposals incur in fee costs that have to be paid by the proposal creator user. So keep in mind that before sending the proposal to the backend write a claimable balance from the proposal creator user to the _proposal micropayment sender_ account with enough XLM to afford those fee costs, after the proposal has been saved the exceeding amount of XLM will be paid back to the proposal creator user. It could be a good idea to include the proposal creator user as claimant as well some time restrictions in case something goes wrong, in the following example the proposalMicropaymentAccount can claim the claimable balance within 5 minutes of the POST request, and the proposal creator user can do the same after 5 minutes.
+
+```
+StellarSdk.Operation.createClaimableBalance({
+  claimants: [
+    new StellarSdk.Claimant(
+      proposalCreatorUser.publicKey(),
+      StellarSdk.Claimant.predicateNot(
+        StellarSdk.Claimant.predicateBeforeRelativeTime("300")
+      )
+    ),
+    new StellarSdk.Claimant(
+      proposalMicropaymentSender.publicKey(),
+      StellarSdk.Claimant.predicateBeforeRelativeTime("300")
+    ),
+  ],
+  asset: StellarSdk.Asset.native(),
+  amount: "5",
+})
+```
 
 ## Community
 Join PlutoDAO community at [Discord](https://discord.gg/xvDPZ3ZY6d)!
