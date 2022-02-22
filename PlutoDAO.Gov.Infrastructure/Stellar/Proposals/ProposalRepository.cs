@@ -41,8 +41,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var proposalMicropaymentReceiverKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.MicropaymentReceiverPrivateKey);
             var micropaymentSenderAccountResponse = await _server.Accounts.Account(proposalMicropaymentSenderKeyPair.AccountId);
             var micropaymentSenderAccount = new Account(proposalMicropaymentSenderKeyPair.AccountId, micropaymentSenderAccountResponse.SequenceNumber);
-            var assetCode = await GenerateAssetCode(proposalMicropaymentReceiverKeyPair.AccountId, proposalMicropaymentSenderKeyPair.AccountId);
             var proposalMicropaymentSenderInitialXlmBalance = await GetAccountXlmBalance(proposalMicropaymentSenderKeyPair.AccountId);
+            var assetCode = EncodingHelper.EncodeSeqNumberToBase48(proposalCreatorAccount.SequenceNumber);
 
             var claimClaimableBalanceResponse =
                 await ClaimClaimableBalance(micropaymentSenderAccount, proposalMicropaymentSenderKeyPair,
@@ -192,23 +192,6 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var tx = transactionBuilder.Build();
             tx.Sign(proposalMicropaymentSenderKeyPair);
             return await _server.SubmitTransaction(tx);
-        }
-
-        private async Task<string> GenerateAssetCode(string proposalMicropaymentReceiverPublicKey, string proposalMicropaymentSenderPublicKey)
-        {
-            IList<string> assetList = new List<string>();
-            var response =
-                await _server.Payments.ForAccount(proposalMicropaymentSenderPublicKey).Limit(200).Execute();
-            while (response.Embedded.Records.Count != 0)
-            {
-                foreach (var payment in response.Records.OfType<PaymentOperationResponse>())
-                    if (payment.SourceAccount == proposalMicropaymentReceiverPublicKey && payment.AssetCode.Contains("PROP"))
-                        assetList.Add(payment.AssetCode);
-                response = await response.NextPage();
-            }
-
-            var uniqueAssetCount = assetList.Distinct().Count();
-            return $"PROP{uniqueAssetCount + 1}";
         }
 
         private async Task PayBackExceedingFunds(decimal initialXlmBalance, Account source, KeyPair sourceKeyPair,

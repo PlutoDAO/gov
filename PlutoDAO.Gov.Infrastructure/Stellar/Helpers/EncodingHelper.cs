@@ -112,5 +112,34 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             for (var i = 0; i < raw.Length; i++) raw[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
             return Encoding.ASCII.GetString(raw);
         }
+
+        public static string EncodeSeqNumberToBase48(long sequenceNumber)
+        {
+            var map = new[]
+            {
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
+                'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+                'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+                'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't',
+                'u', 'v', 'x', 'y', 'z', '2', '3', '4'
+            };
+
+            var sequenceNumberString = sequenceNumber.ToString();
+            var slicedSequenceNumber = long.Parse(sequenceNumberString.Substring(sequenceNumberString.Length - 13));
+
+            var b = map.Length;
+
+            var toChar = map.Select((v, i) => new {Value = v, Index = i}).ToDictionary(i => i.Index, i => i.Value);
+            var result = "";
+            if (slicedSequenceNumber == 0) return "" + toChar[0];
+            while (slicedSequenceNumber > 0)
+            {
+                var val = (int) (slicedSequenceNumber % b);
+                slicedSequenceNumber = slicedSequenceNumber / b;
+                result += toChar[val];
+            }
+
+            return result;
+        }
     }
 }
