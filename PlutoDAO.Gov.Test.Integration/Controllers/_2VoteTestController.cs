@@ -34,7 +34,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
                 Config.PlutoDAOMicropaymentSenderKeyPair);
 
             var proposalRequestContent =
-                $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                $@"{{""name"": ""Test_00_Vote_Proposal"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
                 }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
                     ""
@@ -44,12 +44,12 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             await PlutoDAOHelper.SaveProposal(httpClient, Config, proposalRequestContent);
 
             var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
-            var proposal = await PlutoDAOHelper.GetProposalByAssetCode(httpClient, proposalList.Last().Id);
+            var proposalId = proposalList.Last().Id;
+            var proposal = await PlutoDAOHelper.GetProposalByAssetCode(httpClient, proposalId);
 
-            var transaction = await PlutoDAOHelper.VoteIntent(httpClient, Config, "PROP1", "50");
-            Assert.Equal("PROP1 FOR", transaction.Memo.ToXdr().Text);
-
-            await PlutoDAOHelper.VoteDirect(httpClient, Config, "PROP1", "50");
+            var transaction = await PlutoDAOHelper.VoteIntent(httpClient, Config, proposalId, "50");
+            Assert.Equal($"{proposalId} FOR", transaction.Memo.ToXdr().Text);
+            await PlutoDAOHelper.VoteDirect(httpClient, Config, proposalId, "50");
             Assert.Equal("9949.9999900", await StellarHelper.GetAccountXlmBalance(Config.VoterPublic));
 
             var claimableBalanceResponse =
