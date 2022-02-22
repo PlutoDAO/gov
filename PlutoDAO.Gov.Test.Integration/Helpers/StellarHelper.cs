@@ -99,8 +99,8 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
 
         public static async Task<string> GetAccountXlmBalance(string publicKey)
         {
-            var accounts = await Server.Accounts.Account(publicKey);
-            return accounts.Balances.First(balance => balance.AssetType == "native").BalanceString;
+            var account = await Server.Accounts.Account(publicKey);
+            return account.Balances.First(balance => balance.AssetType == "native").BalanceString;
         }
 
         public static async Task<ClaimableBalanceResponse> GetClaimableBalances(string claimantPublicKey,
