@@ -35,8 +35,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         public static async Task<string> VoteDirect(HttpClient client, TestConfiguration config,
             string proposalId, string amount)
         {
-            var content = await Vote(client, config, proposalId, amount, false);
-            return content;
+            return await Vote(client, config, proposalId, amount, false);
         }
 
         public static async Task<Transaction> VoteIntent(HttpClient client, TestConfiguration config,
