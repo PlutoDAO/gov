@@ -52,9 +52,9 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             await PlutoDAOHelper.SaveProposal(httpClient, Config, request3Content);
 
             var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
-            Assert.Equal(4, proposalList.Length);
-            Assert.Equal("Proposal2NameTest", proposalList[2].Name);
-            Assert.Equal("Proposal3NameTest", proposalList[3].Name);
+            Assert.Equal(6, proposalList.Length);
+            Assert.Equal("Proposal2NameTest", proposalList[4].Name);
+            Assert.Equal("Proposal3NameTest", proposalList[5].Name);
         }
     }
 }

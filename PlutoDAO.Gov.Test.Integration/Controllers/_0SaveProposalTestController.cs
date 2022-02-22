@@ -1,7 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
+using PlutoDAO.Gov.Application.Proposals.Responses;
 using PlutoDAO.Gov.Test.Integration.Fixtures;
 using PlutoDAO.Gov.Test.Integration.Helpers;
 using PlutoDAO.Gov.WebApi;
@@ -111,12 +114,12 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
         public async Task Test_03_Concurrently_Save_Two_Proposals()
         {
             var requestContent =
-                $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                $@"{{""name"": ""ConcurrentProposal1"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
                 }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
 
             var requestContent2 =
-                $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                $@"{{""name"": ""ConcurrentProposal2"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator2Public
                 }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
 
@@ -127,13 +130,13 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
 
             var httpClient = _factory.CreateClient();
 
-            await Task.WhenAll(
-                PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent),
-                PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent2)
-            );
+            Task.WaitAll(PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent),
+                PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent2));
 
-            var proposalList = await PlutoDAOHelper.GetList(httpClient, Config);
-            Assert.Equal(2, proposalList.Length);
+            var proposalIdentifierList = await PlutoDAOHelper.GetList(httpClient, Config);
+
+            Assert.Contains(proposalIdentifierList, p => p.Name == "ConcurrentProposal1");
+            Assert.Contains(proposalIdentifierList, p => p.Name == "ConcurrentProposal2");
         }
     }
 }
