@@ -58,5 +58,12 @@ namespace PlutoDAO.Gov.Test.Infrastructure.Stellar.Helpers
             
             Assert.Equal("Encoded text", decodedProposal);
         }
+
+        [Fact]
+        public void TestEncodeSequenceNumberToBase48()
+        {
+            Assert.Equal("4qXPrAFC", EncodingHelper.EncodeSeqNumberToBase48(91581235487423215));
+            Assert.Throws<ArgumentOutOfRangeException>(() => EncodingHelper.EncodeSeqNumberToBase48(123));
+        }
     }
 }
