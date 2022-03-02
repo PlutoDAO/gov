@@ -125,7 +125,9 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             };
 
             var sequenceNumberString = sequenceNumber.ToString();
-            var slicedSequenceNumber = long.Parse(sequenceNumberString.Substring(sequenceNumberString.Length - 13));
+            var slicedSequenceNumber = sequenceNumberString.Length <= 13
+                ? long.Parse(sequenceNumberString)
+                : long.Parse(sequenceNumberString.Substring(sequenceNumberString.Length - 13));
 
             var b = map.Length;
 
