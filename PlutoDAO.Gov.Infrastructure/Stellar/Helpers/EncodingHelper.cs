@@ -124,20 +124,21 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
                 'u', 'v', 'x', 'y', 'z', '2', '3', '4'
             };
 
+            const int maximumSegmentLength = 13;
             var sequenceNumberString = sequenceNumber.ToString();
-            var slicedSequenceNumber = sequenceNumberString.Length <= 13
+            var slicedSequenceNumber = sequenceNumberString.Length <= maximumSegmentLength
                 ? long.Parse(sequenceNumberString)
-                : long.Parse(sequenceNumberString.Substring(sequenceNumberString.Length - 13));
+                : long.Parse(sequenceNumberString.Substring(sequenceNumberString.Length - maximumSegmentLength));
 
-            var b = map.Length;
+            var encodingCharacterSetLength = map.Length;
 
             var toChar = map.Select((v, i) => new {Value = v, Index = i}).ToDictionary(i => i.Index, i => i.Value);
             var result = "";
             if (slicedSequenceNumber == 0) return "" + toChar[0];
             while (slicedSequenceNumber > 0)
             {
-                var val = (int) (slicedSequenceNumber % b);
-                slicedSequenceNumber = slicedSequenceNumber / b;
+                var val = (int) (slicedSequenceNumber % encodingCharacterSetLength);
+                slicedSequenceNumber /= encodingCharacterSetLength;
                 result += toChar[val];
             }
 
