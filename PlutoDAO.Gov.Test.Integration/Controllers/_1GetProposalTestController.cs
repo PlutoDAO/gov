@@ -55,6 +55,8 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(6, proposalList.Length);
             Assert.Equal("Proposal2NameTest", proposalList[4].Name);
             Assert.Equal("Proposal3NameTest", proposalList[5].Name);
+            Assert.True(proposalList[4].RemainingMinutes > 0);
+            Assert.True(proposalList[5].RemainingMinutes > 0);
         }
     }
 }
