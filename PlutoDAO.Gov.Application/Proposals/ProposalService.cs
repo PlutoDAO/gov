@@ -15,7 +15,6 @@ namespace PlutoDAO.Gov.Application.Proposals
         private readonly IProposalRepository _proposalRepository;
         private readonly DateTimeProvider _dateTimeProvider;
 
-        public ProposalService(IProposalRepository proposalRepository)
         public ProposalService(IProposalRepository proposalRepository, DateTimeProvider dateTimeProvider)
         {
             _proposalRepository = proposalRepository;
@@ -25,12 +24,19 @@ namespace PlutoDAO.Gov.Application.Proposals
         public async Task<IProposalResponse> GetProposal(string assetCode)
         {
             var proposal = await _proposalRepository.GetProposal(assetCode);
-
+            string voteResult = null;
             if (proposal == null)
                 throw new ProposalNotFoundException($"Could not find proposal for {assetCode}", null,
                     "Proposal not found", "PROPOSAL_NOT_FOUND");
 
-            return ProposalMapper.Map(proposal);
+            if (proposal.Deadline < _dateTimeProvider.Now.Date)
+            {
+                const int indexShift = 1;
+                var optionIndex = await _proposalRepository.GetVotingResult(assetCode);
+                voteResult = optionIndex > 0 ? proposal.Options.ElementAt(optionIndex - indexShift).Name : "DRAW";
+            }
+
+            return ProposalMapper.Map(proposal, voteResult);
         }
 
         public async Task Save(IProposalRequest request)
