@@ -5,6 +5,7 @@ using PlutoDAO.Gov.Application.Exceptions;
 using PlutoDAO.Gov.Application.Proposals.Mappers;
 using PlutoDAO.Gov.Application.Proposals.Requests;
 using PlutoDAO.Gov.Application.Proposals.Responses;
+using PlutoDAO.Gov.Application.Providers;
 using PlutoDAO.Gov.Domain;
 
 namespace PlutoDAO.Gov.Application.Proposals
@@ -12,10 +13,13 @@ namespace PlutoDAO.Gov.Application.Proposals
     public class ProposalService
     {
         private readonly IProposalRepository _proposalRepository;
+        private readonly DateTimeProvider _dateTimeProvider;
 
         public ProposalService(IProposalRepository proposalRepository)
+        public ProposalService(IProposalRepository proposalRepository, DateTimeProvider dateTimeProvider)
         {
             _proposalRepository = proposalRepository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<IProposalResponse> GetProposal(string assetCode)
