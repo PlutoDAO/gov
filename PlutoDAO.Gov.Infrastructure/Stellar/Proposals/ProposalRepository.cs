@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Application.Proposals.Responses;
+using PlutoDAO.Gov.Application.Providers;
 using PlutoDAO.Gov.Domain;
 using PlutoDAO.Gov.Infrastructure.Stellar.Helpers;
 using stellar_dotnet_sdk;
@@ -19,11 +20,14 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
     {
         private readonly Server _server;
         private readonly SystemAccountConfiguration _systemAccountConfiguration;
+        private readonly DateTimeProvider _dateTimeProvider;
 
-        public ProposalRepository(SystemAccountConfiguration systemAccountConfiguration, Server server)
+        public ProposalRepository(SystemAccountConfiguration systemAccountConfiguration, Server server,
+            DateTimeProvider dateTimeProvider)
         {
             _systemAccountConfiguration = systemAccountConfiguration;
             _server = server;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task SaveProposal(Proposal proposal)
@@ -154,7 +158,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                         .AssetCode;
 
                     var proposalClosingDay = DateTime.Parse(record.CreatedAt).AddDays(31).Date;
-                    var minutesUntilProposalClosing = (float) (proposalClosingDay - DateTime.Now).TotalMinutes;
+                    var minutesUntilProposalClosing = (float) (proposalClosingDay - _dateTimeProvider.Now).TotalMinutes;
 
                     proposalList.Add(new ProposalIdentifier
                         {Id = assetCode, Name = record.MemoValue, RemainingMinutes = minutesUntilProposalClosing});
