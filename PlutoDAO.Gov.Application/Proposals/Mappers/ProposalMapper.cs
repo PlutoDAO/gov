@@ -8,7 +8,7 @@ namespace PlutoDAO.Gov.Application.Proposals.Mappers
 {
     public static class ProposalMapper
     {
-        public static IProposalResponse Map(Proposal proposal)
+        public static IProposalResponse Map(Proposal proposal, string votingResult)
         {
             return new ProposalResponse
             {
@@ -18,7 +18,8 @@ namespace PlutoDAO.Gov.Application.Proposals.Mappers
                 Deadline = proposal.Deadline,
                 Created = proposal.Created,
                 WhitelistedAssets = proposal.WhitelistedAssets.Select(WhitelistedAssetMapper.Map),
-                Options = proposal.Options.Select(option => (OptionDto)option)
+                Options = proposal.Options.Select(option => (OptionDto)option),
+                VotingResult = votingResult
             };
         }
     }

@@ -14,5 +14,6 @@ namespace PlutoDAO.Gov.Application.Proposals.Responses
         public DateTime Created { get; set; }
         public IEnumerable<WhitelistedAssetDto> WhitelistedAssets { get; set; }
         public IEnumerable<OptionDto> Options { get; set; }
+        public string VotingResult { get; set; }
     }
 }
