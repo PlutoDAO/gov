@@ -9,5 +9,6 @@ namespace PlutoDAO.Gov.Application.Proposals
         public Task<Proposal> GetProposal(string assetCode);
         public Task SaveProposal(Proposal proposal);
         public Task<ProposalIdentifier[]> GetProposalList();
+        public Task<int> GetVotingResult(string assetCode);
     }
 }
