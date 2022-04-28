@@ -119,12 +119,33 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             var claimableBalance = await Server.ClaimableBalances.ForClaimant(sponsor)
                 .ForAsset(new AssetTypeNative()).ForSponsor(sponsor).Execute();
             var balanceId = claimableBalance.Records.First().Id;
-            
+
             var claimClaimableBalanceOp = new ClaimClaimableBalanceOperation.Builder(balanceId).Build();
             var transactionBuilder = new TransactionBuilder(sponsorAccount);
             transactionBuilder.AddOperation(claimClaimableBalanceOp);
             var tx = transactionBuilder.Build();
             tx.Sign(sponsor);
+            await Server.SubmitTransaction(tx);
+        }
+
+        public static async Task Pay(KeyPair source, KeyPair destinationPublicKey, string assetCode, int amount)
+        {
+            var sourceAccount = await Server.Accounts.Account(source.AccountId);
+            var asset = Asset.CreateNonNativeAsset(assetCode, source.AccountId);
+            var transactionBuilder = new TransactionBuilder(sourceAccount);
+            var trustlineOp = new ChangeTrustOperation.Builder(ChangeTrustAsset.Create(asset))
+                .SetSourceAccount(destinationPublicKey).Build();
+            transactionBuilder.AddOperation(trustlineOp);
+
+            if (amount > 0)
+            {
+                var paymentOp = new PaymentOperation.Builder(destinationPublicKey, asset, amount.ToString()).Build();
+                transactionBuilder.AddOperation(paymentOp);
+            }
+
+            var tx = transactionBuilder.Build();
+            tx.Sign(source);
+            tx.Sign(destinationPublicKey);
             await Server.SubmitTransaction(tx);
         }
     }
