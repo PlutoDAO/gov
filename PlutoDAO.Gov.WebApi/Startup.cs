@@ -32,7 +32,9 @@ namespace PlutoDAO.Gov.WebApi
                 Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT_PRIVATE_KEY") ??
                 throw new ApplicationException("PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT_PRIVATE_KEY not set"),
                 Environment.GetEnvironmentVariable("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY") ??
-                throw new ApplicationException("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY not set")));
+                throw new ApplicationException("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY not set"),
+                Environment.GetEnvironmentVariable("PLUTODAO_RESULTS_ACCOUNT_PRIVATE_KEY") ??
+                throw new ApplicationException("PLUTODAO_RESULTS_ACCOUNT_PRIVATE_KEY not set")));
 
             services.AddScoped(_ => new Server(Environment.GetEnvironmentVariable("HORIZON_URL")));
 
