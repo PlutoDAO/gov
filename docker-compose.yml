@@ -1,0 +1,8 @@
+﻿version: "3.9"
+services:
+  webapi:
+    build: .
+    image: gov-webapi
+    container_name: gov-webapi
+    ports:
+      - "5001:8080"
