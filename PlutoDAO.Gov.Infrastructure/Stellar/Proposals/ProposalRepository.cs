@@ -154,10 +154,9 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                         .AssetCode;
 
                     var proposalClosingDay = DateTime.Parse(record.CreatedAt).AddDays(31).Date;
-                    var minutesUntilProposalClosing = (float) (proposalClosingDay - DateTime.Now).TotalMinutes;
 
                     proposalList.Add(new ProposalIdentifier
-                        {Id = assetCode, Name = record.MemoValue, RemainingMinutes = minutesUntilProposalClosing});
+                        {Id = assetCode, Name = record.MemoValue, Deadline = proposalClosingDay});
                 }
 
             return proposalList.ToArray();

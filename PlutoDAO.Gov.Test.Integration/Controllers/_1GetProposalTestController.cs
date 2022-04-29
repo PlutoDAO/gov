@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PlutoDAO.Gov.Test.Integration.Fixtures;
@@ -55,8 +56,8 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(6, proposalList.Length);
             Assert.Equal("Proposal2NameTest", proposalList[4].Name);
             Assert.Equal("Proposal3NameTest", proposalList[5].Name);
-            Assert.True(proposalList[4].RemainingMinutes > 0);
-            Assert.True(proposalList[5].RemainingMinutes > 0);
+            Assert.Equal(DateTime.Today.AddDays(31), proposalList[4].Deadline);
+            Assert.Equal(DateTime.Today.AddDays(31), proposalList[5].Deadline);
         }
     }
 }
