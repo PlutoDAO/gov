@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Application.Proposals.Responses;
+using PlutoDAO.Gov.Application.Providers;
 using PlutoDAO.Gov.Domain;
 using PlutoDAO.Gov.Infrastructure.Stellar.Helpers;
 using stellar_dotnet_sdk;
@@ -19,11 +20,14 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
     {
         private readonly Server _server;
         private readonly SystemAccountConfiguration _systemAccountConfiguration;
+        private readonly DateTimeProvider _dateTimeProvider;
 
-        public ProposalRepository(SystemAccountConfiguration systemAccountConfiguration, Server server)
+        public ProposalRepository(SystemAccountConfiguration systemAccountConfiguration, Server server,
+            DateTimeProvider dateTimeProvider)
         {
             _systemAccountConfiguration = systemAccountConfiguration;
             _server = server;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task SaveProposal(Proposal proposal)
@@ -246,6 +250,30 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var balance = account.Balances
                 .First(balance => balance.AssetType == "native").BalanceString;
             return Convert.ToDecimal(balance, CultureInfo.InvariantCulture);
+        }
+
+        public async Task<int> GetVotingResult(string assetCode)
+        {
+            var plutoDaoResultsPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.ResultsPrivateKey).AccountId;
+            var proposalMicropaymentReceiverPublicKey =
+                KeyPair.FromSecretSeed(_systemAccountConfiguration.MicropaymentReceiverPrivateKey).AccountId;
+            var response =
+                await _server.Payments.ForAccount(plutoDaoResultsPublicKey).Limit(200).Execute();
+            while (response.Embedded.Records.Count != 0)
+            {
+                var paymentRecords = response.Records.OfType<PaymentOperationResponse>()
+                    .Where(payment => payment.TransactionSuccessful).ToList();
+
+                foreach (var record in paymentRecords)
+                    if (record.AssetCode == assetCode && record.To == plutoDaoResultsPublicKey &&
+                        record.AssetIssuer == proposalMicropaymentReceiverPublicKey)
+                        return Convert.ToInt32(decimal.Parse(record.Amount, CultureInfo.InvariantCulture));
+
+                response = await response.NextPage();
+            }
+
+            return -1;
         }
     }
 }

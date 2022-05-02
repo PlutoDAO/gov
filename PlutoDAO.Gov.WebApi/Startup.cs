@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using PlutoDAO.Gov.Application.Proposals;
+using PlutoDAO.Gov.Application.Providers;
 using PlutoDAO.Gov.Application.Votes;
 using PlutoDAO.Gov.Infrastructure.Stellar;
 using PlutoDAO.Gov.Infrastructure.Stellar.Proposals;
@@ -32,7 +33,9 @@ namespace PlutoDAO.Gov.WebApi
                 Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT_PRIVATE_KEY") ??
                 throw new ApplicationException("PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT_PRIVATE_KEY not set"),
                 Environment.GetEnvironmentVariable("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY") ??
-                throw new ApplicationException("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY not set")));
+                throw new ApplicationException("PLUTODAO_ESCROW_ACCOUNT_PRIVATE_KEY not set"),
+                Environment.GetEnvironmentVariable("PLUTODAO_RESULTS_ACCOUNT_PRIVATE_KEY") ??
+                throw new ApplicationException("PLUTODAO_RESULTS_ACCOUNT_PRIVATE_KEY not set")));
 
             services.AddScoped(_ => new Server(Environment.GetEnvironmentVariable("HORIZON_URL")));
 
@@ -40,6 +43,7 @@ namespace PlutoDAO.Gov.WebApi
             services.AddScoped<VoteService>();
             services.AddScoped<IProposalRepository, ProposalRepository>();
             services.AddScoped<IVoteRepository, VoteRepository>();
+            services.AddScoped(_ => new DateTimeProvider(DateTime.Now));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
