@@ -27,6 +27,19 @@ namespace PlutoDAO.Gov.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder
+                            .SetIsOriginAllowedToAllowWildcardSubdomains()
+                            .AllowAnyHeader()
+                            .AllowAnyOrigin()
+                            .AllowAnyMethod();
+                    });
+            });
+
             services.AddScoped(_ => new SystemAccountConfiguration(
                 Environment.GetEnvironmentVariable("PLUTODAO_PROPOSAL_MICROPAYMENT_SENDER_ACCOUNT_PRIVATE_KEY") ??
                 throw new ApplicationException("PLUTODAO_PROPOSAL_MICROPAYMENT_SENDER_ACCOUNT_PRIVATE_KEY not set"),
@@ -77,6 +90,8 @@ namespace PlutoDAO.Gov.WebApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 
