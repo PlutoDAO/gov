@@ -15,7 +15,8 @@ namespace PlutoDAO.Gov.Domain
         public DateTime Deadline;
         public readonly IEnumerable<Option> Options;
 
-        public Proposal(string name, string description, string creator, IEnumerable<WhitelistedAsset> whitelistedAssets)
+        public Proposal(string name, string description, string creator,
+            IEnumerable<WhitelistedAsset> whitelistedAssets)
         {
             Name = string.IsNullOrWhiteSpace(name)
                 ? throw new ArgumentException("The proposal name field cannot or empty")
@@ -30,14 +31,15 @@ namespace PlutoDAO.Gov.Domain
                 ? throw new ArgumentException("The allowed asset list cannot be empty")
                 : whitelistedAssets;
             Created = DateTime.Now;
-            Deadline = Created.Date.AddDays(30);
+            Deadline = Created.Date.AddDays(31);
             Options = new[]
             {
                 new Option("FOR"), new Option("AGAINST")
             };
         }
 
-        public Proposal(string name, string description, string creator, IEnumerable<WhitelistedAsset> whitelistedAssets, DateTime created, DateTime deadline,
+        public Proposal(string name, string description, string creator,
+            IEnumerable<WhitelistedAsset> whitelistedAssets, DateTime created, DateTime deadline,
             IEnumerable<Option>? options)
         {
             Name = string.IsNullOrWhiteSpace(name)

@@ -60,7 +60,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(2, claimableBalanceResponse.Claimants.Length);
             Assert.Equal(Config.PlutoDAOEscrowPublic, claimableBalanceResponse.Claimants[0].Destination);
             Assert.Equal(Config.VoterPublic, claimableBalanceResponse.Claimants[1].Destination);
-            Assert.Equal(proposal.Created.Date.ToUniversalTime().AddDays(31).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+            Assert.Equal(proposal.Created.Date.ToUniversalTime().AddDays(32).ToString("yyyy-MM-ddTHH:mm:ssZ"),
                 claimableBalanceResponse.Claimants[1].Predicate.Not.AbsBefore);
         }
     }
