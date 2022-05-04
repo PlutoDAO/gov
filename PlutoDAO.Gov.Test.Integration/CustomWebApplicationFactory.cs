@@ -16,7 +16,7 @@ namespace PlutoDAO.Gov.Test.Integration
                 var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DateTimeProvider));
 
                 services.Remove(descriptor);
-                services.AddScoped(_ => new DateTimeProvider(DateTime.Today.AddDays(31)));
+                services.AddScoped(_ => new DateTimeProvider(DateTime.Today.AddDays(32)));
             });
         }
     }

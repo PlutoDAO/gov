@@ -53,7 +53,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("Proposal1NameTest", proposal.Name);
             Assert.Equal("A testing proposal", proposal.Description);
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
-            Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(30));
+            Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(31));
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
             Assert.Equal("9999.9991600", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
@@ -102,7 +102,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("Proposal", proposal.Name);
             Assert.Equal(proposalDescription, proposal.Description);
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
-            Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(30));
+            Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(31));
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
             Assert.Equal("9999.9930500", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
