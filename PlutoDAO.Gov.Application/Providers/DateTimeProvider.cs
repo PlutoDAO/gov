@@ -11,6 +11,6 @@ namespace PlutoDAO.Gov.Application.Providers
             _dateTime = fixedDateTime;
         }
 
-        public DateTime Now => _dateTime ?? DateTime.Now;
+        public DateTime Now => _dateTime ?? DateTime.UtcNow;
     }
 }
