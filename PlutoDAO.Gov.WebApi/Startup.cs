@@ -56,7 +56,7 @@ namespace PlutoDAO.Gov.WebApi
             services.AddScoped<VoteService>();
             services.AddScoped<IProposalRepository, ProposalRepository>();
             services.AddScoped<IVoteRepository, VoteRepository>();
-            services.AddScoped(_ => new DateTimeProvider(DateTime.Now));
+            services.AddScoped(_ => new DateTimeProvider(DateTime.UtcNow));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

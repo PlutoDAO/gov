@@ -17,8 +17,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null
             );
 
@@ -44,24 +44,24 @@ namespace PlutoDAO.Gov.Test.Domain
                 "FakeDescription",
                 "ProposalHelper.GetFakeCreator()",
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null));
 
             Assert.Throws<ArgumentException>(() => new Proposal("     ",
                 "FakeDescription",
                 "ProposalHelper.GetFakeCreator()",
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null));
 
             Assert.Throws<ArgumentException>(() => new Proposal(null,
                 "FakeDescription",
                 "ProposalHelper.GetFakeCreator()",
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null));
         }
 
@@ -73,8 +73,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null
             );
 
@@ -92,8 +92,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null
             );
 
@@ -108,8 +108,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null
             );
             var plt = AssetHelper.GetPlt();
@@ -142,8 +142,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null
             );
             var fakeAsset = AssetHelper.GetFakeAsset();
@@ -164,8 +164,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMilliseconds(10),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMilliseconds(10),
                 null
             );
 
@@ -188,8 +188,8 @@ namespace PlutoDAO.Gov.Test.Domain
                 ProposalHelper.GetDescription(),
                 ProposalHelper.GetFakeCreator(),
                 WhitelistedAssetHelper.GetWhitelistedAssets(),
-                DateTime.Now,
-                DateTime.Now.AddMinutes(1),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(1),
                 null
             );
 

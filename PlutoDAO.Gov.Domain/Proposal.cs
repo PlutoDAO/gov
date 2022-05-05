@@ -30,7 +30,7 @@ namespace PlutoDAO.Gov.Domain
             WhitelistedAssets = !whitelistedAssets.Any()
                 ? throw new ArgumentException("The allowed asset list cannot be empty")
                 : whitelistedAssets;
-            Created = DateTime.Now;
+            Created = DateTime.UtcNow;
             Deadline = Created.Date.AddDays(31);
             Options = new[]
             {
@@ -79,7 +79,7 @@ namespace PlutoDAO.Gov.Domain
 
         public bool IsVoteClosed()
         {
-            return DateTime.Now >= Deadline;
+            return DateTime.UtcNow >= Deadline;
         }
 
         public Option DeclareWinner(IEnumerable<ValidatedVote> votes)
