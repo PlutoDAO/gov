@@ -20,8 +20,9 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
                 .First(balance => balance.AssetType == "native").BalanceString;
             return Convert.ToDecimal(balance, CultureInfo.InvariantCulture);
         }
-        
-        private static async Task PayBackExceedingFunds(decimal initialXlmBalance, Account source, KeyPair sourceKeyPair,
+
+        private static async Task PayBackExceedingFunds(decimal initialXlmBalance, Account source,
+            KeyPair sourceKeyPair,
             string destination)
         {
             var proposalMicropaymentSenderFinalXlmBalance =
@@ -30,16 +31,18 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             var exceedingFunds = proposalMicropaymentSenderFinalXlmBalance - initialXlmBalance - returnFundsFee;
 
             var destinationKeyPair = KeyPair.FromAccountId(destination);
+            var feeStats = await Server.FeeStats.Execute();
             var txBuilder = new TransactionBuilder(source);
             var paymentOp = new PaymentOperation.Builder(destinationKeyPair, new AssetTypeNative(),
                 Convert.ToString(exceedingFunds, CultureInfo.InvariantCulture)).Build();
-            txBuilder.AddOperation(paymentOp);
+            txBuilder.SetFee((uint) feeStats.FeeCharged.P90).AddOperation(paymentOp);
             var tx = txBuilder.Build();
             tx.Sign(sourceKeyPair);
             await Server.SubmitTransaction(tx);
         }
-        
-        private static async Task<string> GenerateAssetCode(string proposalMicropaymentReceiverPublicKey, string proposalMicropaymentSenderPublicKey)
+
+        private static async Task<string> GenerateAssetCode(string proposalMicropaymentReceiverPublicKey,
+            string proposalMicropaymentSenderPublicKey)
         {
             IList<string> assetList = new List<string>();
             var response =
@@ -47,7 +50,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             while (response.Embedded.Records.Count != 0)
             {
                 foreach (var payment in response.Records.OfType<PaymentOperationResponse>())
-                    if (payment.SourceAccount == proposalMicropaymentReceiverPublicKey && payment.AssetCode.Contains("PROP"))
+                    if (payment.SourceAccount == proposalMicropaymentReceiverPublicKey &&
+                        payment.AssetCode.Contains("PROP"))
                         assetList.Add(payment.AssetCode);
                 response = await response.NextPage();
             }
@@ -55,7 +59,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             var uniqueAssetCount = assetList.Distinct().Count();
             return $"PROP{uniqueAssetCount + 1}";
         }
-        
+
         private static async Task<SubmitTransactionResponse> ClaimClaimableBalance(Account proposalMicropaymentSender,
             KeyPair proposalMicropaymentSenderKeyPair, string proposalCreator)
         {
@@ -65,8 +69,9 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Helpers
             var balanceId = claimableBalance.Records.First().Id;
 
             var claimClaimableBalanceOp = new ClaimClaimableBalanceOperation.Builder(balanceId).Build();
+            var feeStats = await Server.FeeStats.Execute();
             var transactionBuilder = new TransactionBuilder(proposalMicropaymentSender);
-            transactionBuilder.AddOperation(claimClaimableBalanceOp);
+            transactionBuilder.SetFee((uint) feeStats.FeeCharged.P90).AddOperation(claimClaimableBalanceOp);
             var tx = transactionBuilder.Build();
             tx.Sign(proposalMicropaymentSenderKeyPair);
             return await Server.SubmitTransaction(tx);
