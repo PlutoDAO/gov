@@ -176,6 +176,7 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
         {
             var encodedProposalPayments = EncodingHelper.Encode(serializedProposalSection);
 
+            var feeStats = await _server.FeeStats.Execute();
             var txBuilder = new TransactionBuilder(micropaymentSenderAccount);
             var asset = Asset.CreateNonNativeAsset(assetCode, proposalMicropaymentReceiverKeyPair.AccountId);
 
@@ -185,7 +186,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                 new PaymentOperation.Builder(proposalMicropaymentSenderKeyPair, asset,
                         EncodingHelper.MaxTokens.ToString())
                     .SetSourceAccount(proposalMicropaymentReceiverKeyPair).Build();
-            txBuilder.AddOperation(changeTrustLineOp).AddOperation(paymentOp).AddMemo(new MemoText(proposalName));
+            txBuilder.SetFee((uint) feeStats.FeeCharged.P90).AddOperation(changeTrustLineOp).AddOperation(paymentOp)
+                .AddMemo(new MemoText(proposalName));
 
             foreach (var payment in encodedProposalPayments.EncodedProposalMicropayments)
             {
@@ -219,7 +221,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
             var claimClaimableBalanceOp = new ClaimClaimableBalanceOperation.Builder(balanceId).Build();
             var transactionBuilder = new TransactionBuilder(proposalMicropaymentSender);
-            transactionBuilder.AddOperation(claimClaimableBalanceOp);
+            var feeStats = await _server.FeeStats.Execute();
+            transactionBuilder.SetFee((uint) feeStats.FeeCharged.P90).AddOperation(claimClaimableBalanceOp);
             var tx = transactionBuilder.Build();
             tx.Sign(proposalMicropaymentSenderKeyPair);
             return await _server.SubmitTransaction(tx);
@@ -237,7 +240,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var txBuilder = new TransactionBuilder(source);
             var paymentOp = new PaymentOperation.Builder(destinationKeyPair, new AssetTypeNative(),
                 Convert.ToString(exceedingFunds, CultureInfo.InvariantCulture)).Build();
-            txBuilder.AddOperation(paymentOp);
+            var feeStats = await _server.FeeStats.Execute();
+            txBuilder.SetFee((uint) feeStats.FeeCharged.P90).AddOperation(paymentOp);
             var tx = txBuilder.Build();
             tx.Sign(sourceKeyPair);
             await _server.SubmitTransaction(tx);

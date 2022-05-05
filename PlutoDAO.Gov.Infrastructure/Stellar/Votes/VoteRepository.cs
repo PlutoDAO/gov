@@ -25,7 +25,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Votes
             return voteTransaction.ToUnsignedEnvelopeXdrBase64();
         }
 
-        public async Task SaveVote(ValidatedVote validatedVote, Proposal proposal, string proposalId, string voterPrivateKey)
+        public async Task SaveVote(ValidatedVote validatedVote, Proposal proposal, string proposalId,
+            string voterPrivateKey)
         {
             var voterKeyPair = KeyPair.FromSecretSeed(voterPrivateKey);
             var voteTransaction = await GetVoteTransaction(validatedVote, proposal, proposalId);
@@ -42,7 +43,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Votes
                 );
         }
 
-        private async Task<Transaction> GetVoteTransaction(ValidatedVote validatedVote, Proposal proposal, string proposalId)
+        private async Task<Transaction> GetVoteTransaction(ValidatedVote validatedVote, Proposal proposal,
+            string proposalId)
         {
             var escrowKeyPair = KeyPair.FromSecretSeed(_systemAccountConfiguration.EscrowPrivateKey);
             var voterKeyPair = KeyPair.FromAccountId(validatedVote.Voter);
@@ -69,13 +71,14 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Votes
                     ? new AssetTypeCreditAlphaNum12(validatedVote.Asset.Code, validatedVote.Asset.Issuer.Address)
                     : new AssetTypeCreditAlphaNum4(validatedVote.Asset.Code, validatedVote.Asset.Issuer.Address);
 
+            var feeStats = await _server.FeeStats.Execute();
             var txBuilder = new TransactionBuilder(voterAccount);
             var claimableBalanceOp =
                 new CreateClaimableBalanceOperation.Builder(asset, $"{validatedVote.Amount}",
                         new[] {escrowClaimant, voterClaimant})
                     .SetSourceAccount(voterKeyPair)
                     .Build();
-            txBuilder.AddOperation(claimableBalanceOp)
+            txBuilder.SetFee((uint) feeStats.FeeCharged.P90).AddOperation(claimableBalanceOp)
                 .AddMemo(new MemoText($"{proposalId} {validatedVote.Option.Name}"));
 
             return txBuilder.Build();
