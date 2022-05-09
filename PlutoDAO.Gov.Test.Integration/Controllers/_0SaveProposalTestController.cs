@@ -56,7 +56,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(31));
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
-            Assert.Equal("9999.9991800", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("9999.9991900", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
             Assert.Equal("10000.0000000",
                 await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
         }
@@ -105,7 +105,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(31));
             Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
-            Assert.Equal("9999.9930900", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("9999.9931100", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
             Assert.Equal("10000.0000000",
                 await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
         }

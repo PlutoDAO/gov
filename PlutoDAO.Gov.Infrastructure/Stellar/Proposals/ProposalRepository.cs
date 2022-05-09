@@ -38,7 +38,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
 
             var serializedProposal = JsonConvert.SerializeObject(proposal, new JsonSerializerSettings
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ssK"
             });
 
             var proposalMicropaymentSenderKeyPair =
