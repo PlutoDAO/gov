@@ -49,7 +49,7 @@ All of those transactions incur in fee costs, which are covered by the proposal 
 The voting mechanism is much simpler, the voter sends a claimable balance to an escrow account (this account has a signing weight of 0), with a memo text carrying the information of the proposal Id (the name of the asset used to make the micropayments) and the selected option, for example: `"PROP3 AGAINST"`. The voter can choose which asset to lock from a list of allowed/whitelisted assets for that particular proposal, each whitelisted asset has a multiplier that will be taken into consideration at the vote count time (check the [gov-worker repository](https://github.com/PlutoDAO/gov-worker) for more information about the vote count process).
 
 ## Requirements
-* .NET 5
+* .NET 6
 * Docker
 * docker-compose
 
@@ -64,7 +64,7 @@ Execute
 Or simply `dotnet run`
 
 ## How to run integration tests
-1) Copy the file `PlutoDAO.Gov.Test.Integration/appsettings.test.json.dist` name it `appsettings.dev.json` and place it in `PlutoDAO.Gov.Test.Integration/bin/Debug/net5.0/`
+1) Copy the file `PlutoDAO.Gov.Test.Integration/appsettings.test.json.dist` name it `appsettings.dev.json` and place it in `PlutoDAO.Gov.Test.Integration/bin/Debug/net6.0/`
 2) Run docker-compose up from within `PlutoDAO.Gov.Test.Integration` directory, now you'll have a local instance of Stellar running on your localhost on port 8000
 3) Execute `dotnet test`
 
