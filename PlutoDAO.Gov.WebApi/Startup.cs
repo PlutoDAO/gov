@@ -87,6 +87,8 @@ namespace PlutoDAO.Gov.WebApi
                 Network.UsePublicNetwork();
             }
 
+            app.UseHttpLogging();
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
