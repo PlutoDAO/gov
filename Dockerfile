@@ -1,4 +1,4 @@
-﻿ARG VERSION=5.0-focal
+﻿ARG VERSION=6.0-focal
 FROM mcr.microsoft.com/dotnet/sdk:$VERSION AS build-env
 
 WORKDIR /app
