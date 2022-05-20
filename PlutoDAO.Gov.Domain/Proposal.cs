@@ -19,13 +19,13 @@ namespace PlutoDAO.Gov.Domain
             IEnumerable<WhitelistedAsset> whitelistedAssets)
         {
             Name = string.IsNullOrWhiteSpace(name)
-                ? throw new ArgumentException("The proposal name field cannot or empty")
+                ? throw new ArgumentException("The proposal name field cannot be empty")
                 : name;
             Description = string.IsNullOrWhiteSpace(description)
-                ? throw new ArgumentException("The proposal description field cannot or empty")
+                ? throw new ArgumentException("The proposal description field cannot be empty")
                 : description;
             Creator = string.IsNullOrWhiteSpace(creator)
-                ? throw new ArgumentException("The proposal creator field cannot or empty")
+                ? throw new ArgumentException("The proposal creator field cannot be empty")
                 : creator;
             WhitelistedAssets = !whitelistedAssets.Any()
                 ? throw new ArgumentException("The allowed asset list cannot be empty")
@@ -43,13 +43,13 @@ namespace PlutoDAO.Gov.Domain
             IEnumerable<Option>? options)
         {
             Name = string.IsNullOrWhiteSpace(name)
-                ? throw new ArgumentException("The proposal name field cannot or empty")
+                ? throw new ArgumentException("The proposal name field cannot be empty")
                 : name;
             Description = string.IsNullOrWhiteSpace(description)
-                ? throw new ArgumentException("The proposal description field cannot or empty")
+                ? throw new ArgumentException("The proposal description field cannot be empty")
                 : description;
             Creator = string.IsNullOrWhiteSpace(creator)
-                ? throw new ArgumentException("The proposal creator field cannot or empty")
+                ? throw new ArgumentException("The proposal creator field cannot be empty")
                 : creator;
             WhitelistedAssets = !whitelistedAssets.Any()
                 ? throw new ArgumentException("The allowed asset list cannot be empty")
