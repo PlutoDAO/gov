@@ -27,7 +27,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
 
         public static async Task<ProposalIdentifier[]> GetList(HttpClient client, TestConfiguration config)
         {
-            var response = await client.GetAsync("proposal/list");
+            var response = await client.GetAsync("proposal");
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<ProposalIdentifier[]>(content);
         }
