@@ -8,6 +8,7 @@ using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Application.Proposals.Responses;
 using PlutoDAO.Gov.Application.Providers;
 using PlutoDAO.Gov.Domain;
+using PlutoDAO.Gov.Infrastructure.Stellar.Exceptions;
 using PlutoDAO.Gov.Infrastructure.Stellar.Helpers;
 using stellar_dotnet_sdk;
 using stellar_dotnet_sdk.responses;
@@ -55,25 +56,43 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
             var proposalMicropaymentSenderInitialXlmBalance =
                 await GetAccountXlmBalance(proposalMicropaymentSenderKeyPair.AccountId);
 
-            var claimClaimableBalanceResponse =
-                await ClaimClaimableBalance(micropaymentSenderAccount, proposalMicropaymentSenderKeyPair,
-                    proposal.Creator);
+            SubmitTransactionResponse claimClaimableBalanceResponse;
+            try
+            {
+                claimClaimableBalanceResponse =
+                    await ClaimClaimableBalance(micropaymentSenderAccount, proposalMicropaymentSenderKeyPair,
+                        proposal.Creator);
+            }
+            catch (InvalidOperationException)
+            {
+                throw new ClaimableBalanceException("No claimable balance found");
+            }
 
             while (claimClaimableBalanceResponse.Result is TransactionResultBadSeq)
                 claimClaimableBalanceResponse =
                     await ClaimClaimableBalance(micropaymentSenderAccount, proposalMicropaymentSenderKeyPair,
                         proposal.Creator);
 
-            if (claimClaimableBalanceResponse.IsSuccess())
-            {
-                for (var i = 0; i <= serializedProposal.Length; i += maximumProposalLength)
-                {
-                    var serializedProposalSection = serializedProposal.Substring(i,
-                        serializedProposal.Length - i > maximumProposalLength
-                            ? maximumProposalLength
-                            : serializedProposal.Length - i);
+            if (!claimClaimableBalanceResponse.IsSuccess())
+                throw new ClaimableBalanceException("Error claiming the claimable balance");
 
-                    var transactionResponse = await SaveProposal(
+            for (var i = 0; i <= serializedProposal.Length; i += maximumProposalLength)
+            {
+                var serializedProposalSection = serializedProposal.Substring(i,
+                    serializedProposal.Length - i > maximumProposalLength
+                        ? maximumProposalLength
+                        : serializedProposal.Length - i);
+
+                var transactionResponse = await SaveProposal(
+                    serializedProposalSection,
+                    proposal.Name,
+                    assetCode,
+                    proposalMicropaymentSenderKeyPair,
+                    proposalMicropaymentReceiverKeyPair,
+                    micropaymentSenderAccount);
+
+                while (transactionResponse.Result is TransactionResultBadSeq)
+                    transactionResponse = await SaveProposal(
                         serializedProposalSection,
                         proposal.Name,
                         assetCode,
@@ -81,29 +100,19 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                         proposalMicropaymentReceiverKeyPair,
                         micropaymentSenderAccount);
 
-                    while (transactionResponse.Result is TransactionResultBadSeq)
-                        transactionResponse = await SaveProposal(
-                            serializedProposalSection,
-                            proposal.Name,
-                            assetCode,
-                            proposalMicropaymentSenderKeyPair,
-                            proposalMicropaymentReceiverKeyPair,
-                            micropaymentSenderAccount);
-
-                    if (!transactionResponse.IsSuccess())
-                        throw new ApplicationException(
-                            transactionResponse
-                                .SubmitTransactionResponseExtras
-                                .ExtrasResultCodes
-                                .OperationsResultCodes
-                                .Aggregate("", (acc, code) => $"{acc}, {code}")
-                        );
-                }
-
-                await PayBackExceedingFunds(proposalMicropaymentSenderInitialXlmBalance, micropaymentSenderAccount,
-                    proposalMicropaymentSenderKeyPair,
-                    proposal.Creator);
+                if (!transactionResponse.IsSuccess())
+                    throw new ApplicationException(
+                        transactionResponse
+                            .SubmitTransactionResponseExtras
+                            .ExtrasResultCodes
+                            .OperationsResultCodes
+                            .Aggregate("", (acc, code) => $"{acc}, {code}")
+                    );
             }
+
+            await PayBackExceedingFunds(proposalMicropaymentSenderInitialXlmBalance, micropaymentSenderAccount,
+                proposalMicropaymentSenderKeyPair,
+                proposal.Creator);
         }
 
         public async Task<Proposal> GetProposal(string assetCode)
