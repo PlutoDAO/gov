@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Application.Proposals.Responses;
-using PlutoDAO.Gov.Application.Providers;
 using PlutoDAO.Gov.Domain;
 using PlutoDAO.Gov.Infrastructure.Stellar.Exceptions;
 using PlutoDAO.Gov.Infrastructure.Stellar.Helpers;
