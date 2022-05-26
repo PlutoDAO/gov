@@ -138,5 +138,21 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Contains(proposalIdentifierList, p => p.Name == "ConcurrentProposal1");
             Assert.Contains(proposalIdentifierList, p => p.Name == "ConcurrentProposal2");
         }
+
+        [Fact]
+        public async Task Test_04_Save_Proposal_Throws_Error_If_There_Is_No_Claimable_Balance_To_Cover_Costs()
+        {
+            var requestContent =
+                $@"{{""name"": ""Proposal"", ""description"": ""A testing proposal"", ""creator"": ""{
+                    Config.ProposalCreator1Public
+                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+           
+            var httpClient = _factory.CreateClient();
+            var response = await PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent);
+
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Contains("No claimable balance found",
+                response.Content.ReadAsStringAsync().Result);
+        }
     }
 }
