@@ -21,14 +21,11 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
     {
         private readonly Server _server;
         private readonly SystemAccountConfiguration _systemAccountConfiguration;
-        private readonly DateTimeProvider _dateTimeProvider;
 
-        public ProposalRepository(SystemAccountConfiguration systemAccountConfiguration, Server server,
-            DateTimeProvider dateTimeProvider)
+        public ProposalRepository(SystemAccountConfiguration systemAccountConfiguration, Server server)
         {
             _systemAccountConfiguration = systemAccountConfiguration;
             _server = server;
-            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task SaveProposal(Proposal proposal)
