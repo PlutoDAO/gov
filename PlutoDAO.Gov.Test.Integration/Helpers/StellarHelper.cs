@@ -3,7 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using stellar_dotnet_sdk;
 using stellar_dotnet_sdk.responses;
+using stellar_dotnet_sdk.xdr;
+using Asset = stellar_dotnet_sdk.Asset;
+using ChangeTrustAsset = stellar_dotnet_sdk.ChangeTrustAsset;
 using Claimant = stellar_dotnet_sdk.Claimant;
+using ClaimPredicate = stellar_dotnet_sdk.ClaimPredicate;
 
 namespace PlutoDAO.Gov.Test.Integration.Helpers
 {
@@ -97,6 +101,39 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             await Server.SubmitTransaction(tx);
         }
 
+        public static async Task CreateInvalidFeesPaymentClaimableBalance(KeyPair proposalCreator, KeyPair destination)
+        {
+            var proposalCreatorAccountResponse = await Server.Accounts.Account(proposalCreator.AccountId);
+            var proposalCreatorAccount =
+                new Account(proposalCreator.AccountId, proposalCreatorAccountResponse.SequenceNumber);
+
+            var claimants = new[]
+            {
+                new Claimant
+                {
+                    Destination = destination,
+                    Predicate = ClaimPredicate.Not(
+                        ClaimPredicate.BeforeRelativeTime(new Duration(new Uint64(50000))))
+                },
+                new Claimant
+                {
+                    Destination = proposalCreator, 
+                    Predicate = ClaimPredicate.Unconditional()
+                }
+            };
+
+            var txBuilder = new TransactionBuilder(proposalCreatorAccount);
+            var claimableBalanceOp =
+                new CreateClaimableBalanceOperation.Builder(new AssetTypeNative(), "5", claimants)
+                    .SetSourceAccount(proposalCreator)
+                    .Build();
+            txBuilder.AddOperation(claimableBalanceOp);
+
+            var tx = txBuilder.Build();
+            tx.Sign(proposalCreator);
+            await Server.SubmitTransaction(tx);
+        }
+
         public static async Task<string> GetAccountXlmBalance(string publicKey)
         {
             var account = await Server.Accounts.Account(publicKey);
@@ -112,7 +149,7 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             return response.Records.First();
         }
 
-        public static async Task ClaimVoteFunds(string claimantSecretKey)
+        public static async Task ClaimClaimableBalance(string claimantSecretKey)
         {
             var sponsor = KeyPair.FromSecretSeed(claimantSecretKey);
             var sponsorAccount = await Server.Accounts.Account(sponsor.AccountId);
