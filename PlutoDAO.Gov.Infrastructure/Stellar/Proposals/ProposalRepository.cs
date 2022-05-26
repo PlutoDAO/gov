@@ -70,7 +70,8 @@ namespace PlutoDAO.Gov.Infrastructure.Stellar.Proposals
                         proposal.Creator);
 
             if (!claimClaimableBalanceResponse.IsSuccess())
-                throw new ClaimableBalanceException("Error claiming the claimable balance");
+                throw new ClaimableBalanceException(
+                    $"Error claiming the claimable balance: {claimClaimableBalanceResponse.SubmitTransactionResponseExtras.ExtrasResultCodes.TransactionResultCode}");
 
             for (var i = 0; i <= serializedProposal.Length; i += maximumProposalLength)
             {

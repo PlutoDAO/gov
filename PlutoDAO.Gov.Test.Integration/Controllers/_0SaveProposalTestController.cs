@@ -146,13 +146,33 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
                 $@"{{""name"": ""Proposal"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
                 }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
-           
+
             var httpClient = _factory.CreateClient();
             var response = await PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent);
 
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
             Assert.Contains("No claimable balance found",
                 response.Content.ReadAsStringAsync().Result);
+        }
+
+        [Fact]
+        public async Task Test_05_Save_Proposal_Throws_Error_If_Claimable_Balance_Reclaim_Fails()
+        {
+            var requestContent =
+                $@"{{""name"": ""Proposal"", ""description"": ""A testing proposal"", ""creator"": ""{
+                    Config.ProposalCreator1Public
+                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+
+            await StellarHelper.CreateInvalidFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
+                Config.PlutoDAOMicropaymentSenderKeyPair);
+
+            var httpClient = _factory.CreateClient();
+            var response = await PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent);
+
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            Assert.Contains("Error claiming the claimable balance: tx_failed",
+                response.Content.ReadAsStringAsync().Result);
+            await StellarHelper.ClaimClaimableBalance(Config.ProposalCreator1Private);
         }
     }
 }
