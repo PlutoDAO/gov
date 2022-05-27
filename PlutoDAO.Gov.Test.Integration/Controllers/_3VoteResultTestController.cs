@@ -32,11 +32,9 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
                 Config.PlutoDAOMicropaymentSenderKeyPair);
             var requestContent =
-                $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
+                $@"{{""name"": ""Test_00_Voting_Result"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"",""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
-                    ""
-                }""}}, ""multiplier"": ""1""}}, {{""asset"": {{ ""isNative"": false, ""code"": ""PNT"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""2""}}]}}";
+                }""}}";
         
             var httpClient = _factory.CreateClient();
         

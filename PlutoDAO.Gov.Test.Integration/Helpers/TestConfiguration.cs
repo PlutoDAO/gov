@@ -12,6 +12,9 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         public const string PlutoDAOMicropaymentReceiverConfigKey = "PLUTODAO_PROPOSAL_MICROPAYMENT_RECEIVER_ACCOUNT";
         public const string PlutoDAOEscrowConfigKey = "PLUTODAO_ESCROW_ACCOUNT";
         public const string PlutoDAOResultsConfigKey = "PLUTODAO_RESULTS_ACCOUNT";
+        public const string PlutoDAOpUSDIssuerConfigKey = "PLUTODAO_PUSD_ISSUER_ACCOUNT";
+        public const string YusdcAssetIssuerConfigKey = "YUSDC_ISSUER_ACCOUNT";
+        public const string UsdcAssetIssuerConfigKey = "USDC_ISSUER_ACCOUNT";
         public const string ProposalCreator1ConfigKey = "TEST_PROPOSAL_CREATOR_1_ACCOUNT";
         public const string ProposalCreator2ConfigKey = "TEST_PROPOSAL_CREATOR_2_ACCOUNT";
         public const string VoterConfigKey = "TEST_VOTER_ACCOUNT";
@@ -83,6 +86,27 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
             if (PlutoDAOMicropaymentReceiverPrivate != null)
                 PlutoDAOMicropaymentReceiverKeyPair = KeyPair.FromSecretSeed(PlutoDAOMicropaymentReceiverPrivate);
 
+            YusdcAssetIssuerPublic = configuration.GetValue<string>(GetPublicConfigKey(YusdcAssetIssuerConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(YusdcAssetIssuerConfigKey), YusdcAssetIssuerPublic);
+            YusdcAssetIssuerPrivate = configuration.GetValue<string>(GetPrivateConfigKey(YusdcAssetIssuerConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(YusdcAssetIssuerConfigKey), YusdcAssetIssuerPrivate);
+            if (YusdcAssetIssuerPrivate != null)
+                YusdcAssetIssuerKeyPair = KeyPair.FromSecretSeed(YusdcAssetIssuerPrivate);
+
+            UsdcAssetIssuerPublic = configuration.GetValue<string>(GetPublicConfigKey(UsdcAssetIssuerConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(UsdcAssetIssuerConfigKey), UsdcAssetIssuerPublic);
+            UsdcAssetIssuerPrivate = configuration.GetValue<string>(GetPrivateConfigKey(UsdcAssetIssuerConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(UsdcAssetIssuerConfigKey), UsdcAssetIssuerPrivate);
+            if (UsdcAssetIssuerPrivate != null)
+                UsdcAssetIssuerKeyPair = KeyPair.FromSecretSeed(UsdcAssetIssuerPrivate);
+
+            PlutoDAOpUSDIssuerPublic = configuration.GetValue<string>(GetPublicConfigKey(PlutoDAOpUSDIssuerConfigKey));
+            Environment.SetEnvironmentVariable(GetPublicConfigKey(PlutoDAOpUSDIssuerConfigKey), PlutoDAOpUSDIssuerPublic);
+            PlutoDAOpUSDIssuerPrivate = configuration.GetValue<string>(GetPrivateConfigKey(PlutoDAOpUSDIssuerConfigKey));
+            Environment.SetEnvironmentVariable(GetPrivateConfigKey(PlutoDAOpUSDIssuerConfigKey), PlutoDAOpUSDIssuerPrivate);
+            if (PlutoDAOpUSDIssuerPrivate != null)
+                PlutoDAOpUSDIssuerKeyPair = KeyPair.FromSecretSeed(PlutoDAOpUSDIssuerPrivate);
+
             ProposalCreator1Public = configuration.GetValue<string>(GetPublicConfigKey(ProposalCreator1ConfigKey));
             Environment.SetEnvironmentVariable(GetPublicConfigKey(ProposalCreator1ConfigKey), ProposalCreator1Public);
             ProposalCreator1Private = configuration.GetValue<string>(GetPrivateConfigKey(ProposalCreator1ConfigKey));
@@ -121,6 +145,9 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
 
         public string ConfigFile { get; }
         public string BaseConfigFile { get; }
+        public AssetTypeCreditAlphaNum PusdAsset { get; set; } = null!;
+        public AssetTypeCreditAlphaNum YusdcAsset { get; set; } = null!;
+        public AssetTypeCreditAlphaNum UsdcAsset { get; set; } = null!;
         public string MasterAccountPrivate { get; }
         private string MasterAccountPublic { get; }
         public string PlutoDAOMicropaymentSenderPublic { get; set; }
@@ -135,6 +162,15 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         public string PlutoDAOResultsPublic { get; set; }
         public string PlutoDAOResultsPrivate { get; set; }
         public KeyPair PlutoDAOResultsKeyPair { get; set; } = null!;
+        public string PlutoDAOpUSDIssuerPublic { get; set; }
+        public string? PlutoDAOpUSDIssuerPrivate { get; set; }
+        public KeyPair PlutoDAOpUSDIssuerKeyPair { get; set; } = null!;
+        public string YusdcAssetIssuerPublic { get; set; }
+        public string YusdcAssetIssuerPrivate { get; set; }
+        public KeyPair YusdcAssetIssuerKeyPair { get; set; } = null!;
+        public string UsdcAssetIssuerPublic { get; set; }
+        public string UsdcAssetIssuerPrivate { get; set; }
+        public KeyPair UsdcAssetIssuerKeyPair { get; set; } = null!;
         public string ProposalCreator1Public { get; set; }
         public string ProposalCreator1Private { get; set; }
         public KeyPair ProposalCreator1KeyPair { get; set; } = null!;

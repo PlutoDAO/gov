@@ -57,8 +57,8 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
         {
             var voteRequestContent = $@"{{""voter"": ""{
                 config.VoterPublic
-            }"",""option"": {{""name"":""FOR""}}, ""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
-                ""
+            }"",""option"": {{""name"":""FOR""}}, ""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
+                config.PusdAsset.Issuer
             }"" }}, ""amount"": ""{amount}"", ""privateKey"": ""{
                 config.VoterPrivate
             }""}}";
