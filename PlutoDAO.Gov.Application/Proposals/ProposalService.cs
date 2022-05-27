@@ -44,7 +44,7 @@ namespace PlutoDAO.Gov.Application.Proposals
             var proposal = new Proposal(request.Name,
                 request.Description,
                 request.Creator,
-                new List<WhitelistedAsset>(request.WhitelistedAssets.Select(w => (WhitelistedAsset) w)));
+                AssetHelper.GetWhitelistedAssets());
 
             await _proposalRepository.SaveProposal(proposal);
         }

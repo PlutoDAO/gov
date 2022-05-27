@@ -1,7 +1,7 @@
 using System;
 using PlutoDAO.Gov.Domain;
-using PlutoDAO.Gov.Test.Helpers;
 using Xunit;
+using AssetHelper = PlutoDAO.Gov.Test.Helpers.AssetHelper;
 
 namespace PlutoDAO.Gov.Test.Domain
 {
