@@ -39,9 +39,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var requestContent =
                 $@"{{""name"": ""Proposal1NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"",""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
-                    ""
-                }""}}, ""multiplier"": ""1""}}, {{""asset"": {{ ""isNative"": false, ""code"": ""PNT"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""2""}}]}}";
+                }""}}";
 
             var httpClient = _factory.CreateClient();
 
@@ -54,9 +52,9 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal("A testing proposal", proposal.Description);
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
             Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(31));
-            Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
+            Assert.Equal("pUSD", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
-            Assert.Equal("9999.9991900", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("9999.9988500", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
             Assert.Equal("10000.0000000",
                 await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
         }
@@ -65,9 +63,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
         public async Task Test_01_Save_Proposal_Throws_Error_If_Name_Exceeds_28_Characters()
         {
             var requestContent =
-                $@"{{""name"": ""A proposal name that exceeds 28 characters"", ""description"": ""A testing proposal"", ""creator"": ""Creator"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
-                    ""
-                }""}}, ""multiplier"": ""1""}}]}}";
+                $@"{{""name"": ""A proposal name that exceeds 28 characters"", ""description"": ""A testing proposal"", ""creator"": ""Creator""}}";
 
             var httpClient = _factory.CreateClient();
             var response = await PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent);
@@ -89,9 +85,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
                 proposalDescription
             }"", ""creator"": ""{
                 Config.ProposalCreator1Public
-            }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
-                ""
-            }""}}, ""multiplier"": ""1""}}]}}";
+            }""}}";
 
             var httpClient = _factory.CreateClient();
             await PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent);
@@ -103,9 +97,9 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             Assert.Equal(proposalDescription, proposal.Description);
             Assert.Equal(Config.ProposalCreator1Public, proposal.Creator);
             Assert.Equal(proposal.Deadline, proposal.Created.Date.AddDays(31));
-            Assert.Equal("XLM", whitelistedAssets[0].Asset.Code);
+            Assert.Equal("pUSD", whitelistedAssets[0].Asset.Code);
             Assert.Equal(1.0m, whitelistedAssets[0].Multiplier);
-            Assert.Equal("9999.9931100", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
+            Assert.Equal("9999.9922600", await StellarHelper.GetAccountXlmBalance(proposal.Creator));
             Assert.Equal("10000.0000000",
                 await StellarHelper.GetAccountXlmBalance(Config.PlutoDAOMicropaymentSenderPublic));
         }
@@ -116,12 +110,12 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var requestContent =
                 $@"{{""name"": ""ConcurrentProposal1"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+                }""}}";
 
             var requestContent2 =
                 $@"{{""name"": ""ConcurrentProposal2"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator2Public
-                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+                }""}}";
 
             await StellarHelper.CreateFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
                 Config.PlutoDAOMicropaymentSenderKeyPair);
@@ -145,7 +139,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var requestContent =
                 $@"{{""name"": ""Proposal"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+                }""}}";
 
             var httpClient = _factory.CreateClient();
             var response = await PlutoDAOHelper.SaveProposal(httpClient, Config, requestContent);
@@ -161,7 +155,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var requestContent =
                 $@"{{""name"": ""Proposal"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""GCDNASAGVK2QYBB5P2KS75VG5YP7MOVAOUPCHAFLESX6WAI2Z46TNZPY""}}, ""multiplier"": ""1""}}]}}";
+                }""}}";
 
             await StellarHelper.CreateInvalidFeesPaymentClaimableBalance(Config.ProposalCreator1KeyPair,
                 Config.PlutoDAOMicropaymentSenderKeyPair);

@@ -17,6 +17,8 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
 
             await CreatePlutoDAOAccounts(configuration);
             await CreateProposalCreatorAccounts(configuration);
+            await CreateStableCoinIssuerAccounts(configuration);
+            await FundVoter(configuration);
 
             PrintConfigurationValues(
                 new[]
@@ -25,6 +27,9 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
                     configuration.PlutoDAOMicropaymentReceiverKeyPair,
                     configuration.PlutoDAOEscrowKeyPair,
                     configuration.PlutoDAOResultsKeyPair,
+                    configuration.UsdcAssetIssuerKeyPair,
+                    configuration.YusdcAssetIssuerKeyPair,
+                    configuration.PlutoDAOpUSDIssuerKeyPair,
 
                     configuration.ProposalCreator1KeyPair,
                     configuration.ProposalCreator2KeyPair,
@@ -36,6 +41,9 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
                     TestConfiguration.PlutoDAOMicropaymentReceiverConfigKey,
                     TestConfiguration.PlutoDAOEscrowConfigKey,
                     TestConfiguration.PlutoDAOResultsConfigKey,
+                    TestConfiguration.UsdcAssetIssuerConfigKey,
+                    TestConfiguration.YusdcAssetIssuerConfigKey,
+                    TestConfiguration.PlutoDAOpUSDIssuerConfigKey,
 
                     TestConfiguration.ProposalCreator1ConfigKey,
                     TestConfiguration.ProposalCreator2ConfigKey,
@@ -103,6 +111,41 @@ namespace PlutoDAO.Gov.Test.Integration.Helpers
                 configuration.VoterPrivate);
             configuration.VoterPublic = configuration.VoterKeyPair.AccountId;
             configuration.VoterPrivate = configuration.VoterKeyPair.SecretSeed;
+        }
+
+        private static async Task CreateStableCoinIssuerAccounts(TestConfiguration configuration)
+        {
+            configuration.PlutoDAOpUSDIssuerKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
+                TestConfiguration.PlutoDAOpUSDIssuerConfigKey,
+                "Main PlutoDAO pUSD Issuer Account", configuration.PlutoDAOpUSDIssuerPrivate
+            );
+            configuration.PlutoDAOpUSDIssuerPublic = configuration.PlutoDAOpUSDIssuerKeyPair.AccountId;
+            configuration.PlutoDAOpUSDIssuerPrivate = configuration.PlutoDAOpUSDIssuerKeyPair.SecretSeed;
+            configuration.PusdAsset = new AssetTypeCreditAlphaNum4("pUSD", configuration.PlutoDAOpUSDIssuerPublic);
+
+            configuration.YusdcAssetIssuerKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
+                TestConfiguration.YusdcAssetIssuerConfigKey, "YusdcAssetIssuer account",
+                configuration.YusdcAssetIssuerPrivate);
+            configuration.YusdcAssetIssuerPublic = configuration.YusdcAssetIssuerKeyPair.AccountId;
+            configuration.YusdcAssetIssuerPrivate = configuration.YusdcAssetIssuerKeyPair.SecretSeed;
+            configuration.YusdcAsset = new AssetTypeCreditAlphaNum12("yUSDC", configuration.YusdcAssetIssuerPublic);
+
+            configuration.UsdcAssetIssuerKeyPair = await StellarHelper.GetOrCreateAccountKeyPair(
+                TestConfiguration.UsdcAssetIssuerConfigKey, "UsdcAssetIssuer account",
+                configuration.UsdcAssetIssuerPrivate);
+            configuration.UsdcAssetIssuerPublic = configuration.UsdcAssetIssuerKeyPair.AccountId;
+            configuration.UsdcAssetIssuerPrivate = configuration.UsdcAssetIssuerKeyPair.SecretSeed;
+            configuration.UsdcAsset = new AssetTypeCreditAlphaNum4("USDC", configuration.UsdcAssetIssuerPublic);
+        }
+
+        private static async Task FundVoter(TestConfiguration configuration)
+        {
+            await StellarHelper.Pay(
+                configuration.PlutoDAOpUSDIssuerKeyPair,
+                configuration.VoterKeyPair,
+                configuration.PusdAsset.Code,
+                10000
+            );
         }
 
         private static void PrintConfigurationValues(

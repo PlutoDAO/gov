@@ -36,9 +36,7 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var proposalRequestContent =
                 $@"{{""name"": ""Test_00_Vote_Proposal"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": true, ""code"": ""XLM"", ""issuer"": ""{
-                    ""
-                }""}}, ""multiplier"": ""1""}}]}}";
+                }""}}";
 
             var httpClient = _factory.CreateClient();
             await PlutoDAOHelper.SaveProposal(httpClient, Config, proposalRequestContent);
@@ -50,13 +48,12 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var transaction = await PlutoDAOHelper.VoteIntent(httpClient, Config, proposalId, "50");
             Assert.Equal($"{proposalId} FOR", transaction.Memo.ToXdr().Text);
             await PlutoDAOHelper.VoteDirect(httpClient, Config, proposalId, "50");
-            Assert.Equal("9949.9999900", await StellarHelper.GetAccountXlmBalance(Config.VoterPublic));
 
             var claimableBalanceResponse =
                 await StellarHelper.GetClaimableBalances(Config.PlutoDAOEscrowPublic, Config.VoterPublic);
             Assert.Equal(Config.VoterPublic, claimableBalanceResponse.Sponsor);
             Assert.Equal("50.0000000", claimableBalanceResponse.Amount);
-            Assert.Equal("native", claimableBalanceResponse.Asset);
+            Assert.Equal($"{Config.PusdAsset.Code}:{Config.PusdAsset.Issuer}", claimableBalanceResponse.Asset);
             Assert.Equal(2, claimableBalanceResponse.Claimants.Length);
             Assert.Equal(Config.PlutoDAOEscrowPublic, claimableBalanceResponse.Claimants[0].Destination);
             Assert.Equal(Config.VoterPublic, claimableBalanceResponse.Claimants[1].Destination);

@@ -38,16 +38,13 @@ namespace PlutoDAO.Gov.Test.Integration.Controllers
             var request2Content =
                 $@"{{""name"": ""Proposal2NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator1Public
-                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
-                    Config.PlutoDAOMicropaymentReceiverPublic
-                }""}}, ""multiplier"": ""1""}}]}}";
+                }""}}";
 
             var request3Content =
                 $@"{{""name"": ""Proposal3NameTest"", ""description"": ""A testing proposal"", ""creator"": ""{
                     Config.ProposalCreator2Public
-                }"", ""deadline"": ""2030-11-19T16:08:19.290Z"", ""whitelistedAssets"": [{{""asset"": {{ ""isNative"": false, ""code"": ""pUSD"", ""issuer"": ""{
-                    Config.PlutoDAOMicropaymentReceiverPublic
-                }""}}, ""multiplier"": ""1""}}]}}";
+                }""}}";
+
             var httpClient = _factory.CreateClient();
             await PlutoDAOHelper.SaveProposal(httpClient, Config, request2Content);
             await PlutoDAOHelper.SaveProposal(httpClient, Config, request3Content);
