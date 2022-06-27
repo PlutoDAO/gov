@@ -5,7 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PlutoDAO.Gov.Domain\PlutoDAO.Gov.Domain.csproj"/>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PlutoDAO.Gov.Domain\PlutoDAO.Gov.Domain.csproj" />
     </ItemGroup>
 
 </Project>
