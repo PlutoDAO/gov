@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlutoDAO.Gov.Application.Exceptions;
@@ -7,6 +5,8 @@ using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Application.Proposals.Responses;
 using PlutoDAO.Gov.Application.Votes;
 using PlutoDAO.Gov.WebApi.Request;
+using System;
+using System.Threading.Tasks;
 
 namespace PlutoDAO.Gov.WebApi.Controllers
 {
@@ -43,17 +43,23 @@ namespace PlutoDAO.Gov.WebApi.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IProposalIdentifier[]))]
-        public async Task<IActionResult> GetList()
+        public async Task<IActionResult> GetList([FromQuery] UrlQueryParameters urlQueryParameters)
         {
             try
             {
-                return Ok(await _proposalService.GetList());
+                var proposals = await _proposalService.GetList(
+                    urlQueryParameters.Limit,
+                    urlQueryParameters.Page
+                );
+                return Ok(proposals);
             }
             catch (Exception e)
             {
                 return Problem(e.Message);
             }
         }
+
+        public record UrlQueryParameters(int Limit = 50, int Page = 1);
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -69,7 +75,7 @@ namespace PlutoDAO.Gov.WebApi.Controllers
                 return Problem(e.Message);
             }
         }
-        
+
         [HttpPost("/{proposalId}/VoteIntent")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> GetVoteIntent(VoteIntentRequest request, string proposalId)
@@ -83,7 +89,7 @@ namespace PlutoDAO.Gov.WebApi.Controllers
                 return Problem(e.Message);
             }
         }
-        
+
         [HttpPost("/{proposalId}/vote")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Vote(DirectVoteRequest request, string proposalId)
