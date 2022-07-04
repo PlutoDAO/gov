@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlutoDAO.Gov.Application.Dtos;
 using PlutoDAO.Gov.Application.Exceptions;
+using PlutoDAO.Gov.Application.Extensions;
 using PlutoDAO.Gov.Application.Proposals;
 using PlutoDAO.Gov.Application.Proposals.Responses;
 using PlutoDAO.Gov.Application.Votes;
@@ -42,7 +44,7 @@ namespace PlutoDAO.Gov.WebApi.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IProposalIdentifier[]))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ListResponseDto))]
         public async Task<IActionResult> GetList([FromQuery] UrlQueryParameters urlQueryParameters)
         {
             try
@@ -51,7 +53,7 @@ namespace PlutoDAO.Gov.WebApi.Controllers
                     urlQueryParameters.Limit,
                     urlQueryParameters.Page
                 );
-                return Ok(proposals);
+                return Ok(GeneratePageLinks(urlQueryParameters, proposals));
             }
             catch (Exception e)
             {
@@ -60,6 +62,34 @@ namespace PlutoDAO.Gov.WebApi.Controllers
         }
 
         public record UrlQueryParameters(int Limit = 50, int Page = 1);
+
+        private ListResponseDto GeneratePageLinks(
+            UrlQueryParameters queryParameters,
+            ListResponseDto response
+        )
+        {
+            if (response.CurrentPage > 1)
+            {
+                var prevRoute = Url.RouteUrl(
+                    nameof(GetList),
+                    new { limit = queryParameters.Limit, page = queryParameters.Page - 1 }
+                );
+
+                response.AddResourceLink(LinkedResourceType.Prev, prevRoute);
+            }
+
+            if (response.CurrentPage < response.TotalPages)
+            {
+                var nextRoute = Url.RouteUrl(
+                    nameof(GetList),
+                    new { limit = queryParameters.Limit, page = queryParameters.Page + 1 }
+                );
+
+                response.AddResourceLink(LinkedResourceType.Next, nextRoute);
+            }
+
+            return response;
+        }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
