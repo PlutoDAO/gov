@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PlutoDAO.Gov.Application.Models
 {
-    public class PagedModel<TModel>
+    public class PagedModel<TModel> : IPage
     {
         const int MaxPageSize = 500;
         private int _pageSize;
@@ -12,7 +12,6 @@ namespace PlutoDAO.Gov.Application.Models
             get => _pageSize;
             set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
         }
-
         public int CurrentPage { get; set; }
         public int TotalItems { get; set; }
         public int TotalPages { get; set; }
