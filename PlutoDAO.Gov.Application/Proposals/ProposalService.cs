@@ -1,6 +1,6 @@
+using PlutoDAO.Gov.Application.Dtos;
 using PlutoDAO.Gov.Application.Exceptions;
 using PlutoDAO.Gov.Application.Extensions;
-using PlutoDAO.Gov.Application.Models;
 using PlutoDAO.Gov.Application.Proposals.Mappers;
 using PlutoDAO.Gov.Application.Proposals.Requests;
 using PlutoDAO.Gov.Application.Proposals.Responses;
@@ -62,11 +62,11 @@ namespace PlutoDAO.Gov.Application.Proposals
             await _proposalRepository.SaveProposal(proposal);
         }
 
-        public async Task<PagedModel<IProposalIdentifier>> GetList(int limit, int page)
+        public async Task<ListResponseDto> GetList(int limit, int page)
         {
             var proposalIdentifiers = await _proposalRepository.GetProposalList();
             return await PagerExtension.Paginate(
-                query: proposalIdentifiers.AsQueryable<IProposalIdentifier>(),
+                query: proposalIdentifiers.AsQueryable(),
                 page,
                 limit
             );
