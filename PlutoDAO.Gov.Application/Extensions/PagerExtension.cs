@@ -1,5 +1,8 @@
-﻿using PlutoDAO.Gov.Application.Models;
+﻿using PlutoDAO.Gov.Application.Dtos;
+using PlutoDAO.Gov.Application.Models;
+using PlutoDAO.Gov.Application.Proposals.Responses;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,11 +10,11 @@ namespace PlutoDAO.Gov.Application.Extensions
 {
     public static class PagerExtension
     {
-        public static Task<PagedModel<TModel>> Paginate<TModel>(
+        public static async Task<ListResponseDto> Paginate<TModel>(
             IQueryable<TModel> query,
             int page,
             int limit
-        ) where TModel : class
+        )
         {
             var paged = new PagedModel<TModel>();
 
@@ -27,7 +30,15 @@ namespace PlutoDAO.Gov.Application.Extensions
 
             paged.TotalPages = (int)Math.Ceiling(paged.TotalItems / (double)limit);
 
-            return Task.FromResult(paged);
+            var pagedModel = await Task.FromResult(paged);
+
+            return new ListResponseDto
+            {
+                CurrentPage = pagedModel.CurrentPage,
+                TotalItems = pagedModel.TotalItems,
+                TotalPages = pagedModel.TotalPages,
+                Items = (List<ProposalIdentifier>)pagedModel.Items
+            };
         }
     }
 }
