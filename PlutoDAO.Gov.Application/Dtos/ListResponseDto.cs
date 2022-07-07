@@ -6,10 +6,10 @@ namespace PlutoDAO.Gov.Application.Dtos
 {
     public class ListResponseDto : ILinkedResource
     {
-        public int CurrentPage { get; init; }
-        public int TotalItems { get; init; }
-        public int TotalPages { get; init; }
-        public List<IProposalIdentifier> Items { get; init; }
+        public int CurrentPage { get; set; }
+        public int TotalItems { get; set; }
+        public int TotalPages { get; set; }
+        public List<ProposalIdentifier> Items { get; set; }
         public IDictionary<LinkedResourceType, LinkedResource> Links { get; set; }
     }
 }
