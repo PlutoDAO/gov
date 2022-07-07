@@ -43,7 +43,7 @@ namespace PlutoDAO.Gov.WebApi.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet(Name = nameof(GetList))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ListResponseDto))]
         public async Task<IActionResult> GetList([FromQuery] UrlQueryParameters urlQueryParameters)
         {
