@@ -1,12 +1,13 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using PlutoDAO.Gov.Application.Dtos;
 using PlutoDAO.Gov.Application.Exceptions;
+using PlutoDAO.Gov.Application.Extensions;
 using PlutoDAO.Gov.Application.Proposals.Mappers;
 using PlutoDAO.Gov.Application.Proposals.Requests;
 using PlutoDAO.Gov.Application.Proposals.Responses;
 using PlutoDAO.Gov.Application.Providers;
 using PlutoDAO.Gov.Domain;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PlutoDAO.Gov.Application.Proposals
 {
@@ -15,7 +16,10 @@ namespace PlutoDAO.Gov.Application.Proposals
         private readonly IProposalRepository _proposalRepository;
         private readonly DateTimeProvider _dateTimeProvider;
 
-        public ProposalService(IProposalRepository proposalRepository, DateTimeProvider dateTimeProvider)
+        public ProposalService(
+            IProposalRepository proposalRepository,
+            DateTimeProvider dateTimeProvider
+        )
         {
             _proposalRepository = proposalRepository;
             _dateTimeProvider = dateTimeProvider;
@@ -26,14 +30,21 @@ namespace PlutoDAO.Gov.Application.Proposals
             var proposal = await _proposalRepository.GetProposal(assetCode);
             string voteResult = null;
             if (proposal == null)
-                throw new ProposalNotFoundException($"Could not find proposal for {assetCode}", null,
-                    "Proposal not found", "PROPOSAL_NOT_FOUND");
+                throw new ProposalNotFoundException(
+                    $"Could not find proposal for {assetCode}",
+                    null,
+                    "Proposal not found",
+                    "PROPOSAL_NOT_FOUND"
+                );
 
             if (proposal.Deadline < _dateTimeProvider.Now.Date)
             {
                 const int indexShift = 1;
                 var optionIndex = await _proposalRepository.GetVotingResult(assetCode);
-                voteResult = optionIndex > 0 ? proposal.Options.ElementAt(optionIndex - indexShift).Name : "DRAW";
+                voteResult =
+                    optionIndex > 0
+                        ? proposal.Options.ElementAt(optionIndex - indexShift).Name
+                        : "DRAW";
             }
 
             return ProposalMapper.Map(proposal, voteResult);
@@ -41,17 +52,24 @@ namespace PlutoDAO.Gov.Application.Proposals
 
         public async Task Save(IProposalRequest request)
         {
-            var proposal = new Proposal(request.Name,
+            var proposal = new Proposal(
+                request.Name,
                 request.Description,
                 request.Creator,
-                AssetHelper.GetWhitelistedAssets());
+                AssetHelper.GetWhitelistedAssets()
+            );
 
             await _proposalRepository.SaveProposal(proposal);
         }
 
-        public async Task<IProposalIdentifier[]> GetList()
+        public async Task<ListResponseDto> GetList(int limit, int page)
         {
-            return await _proposalRepository.GetProposalList();
+            var proposalIdentifiers = await _proposalRepository.GetProposalList();
+            return await PagerExtension.Paginate(
+                query: proposalIdentifiers.AsQueryable(),
+                page,
+                limit
+            );
         }
     }
 }
