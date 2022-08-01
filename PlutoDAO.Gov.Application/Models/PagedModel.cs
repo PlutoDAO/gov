@@ -5,7 +5,7 @@ namespace PlutoDAO.Gov.Application.Models
 {
     public class PagedModel<TModel> : IPage
     {
-        const int MaxPageSize = 500;
+        const int MaxPageSize = 20;
         private int _pageSize;
         public int PageSize
         {
